@@ -176,10 +176,37 @@
         color: #f1f1f1;
         margin-bottom: 2rem;
     }
+    @media print {
+        @page { margin: 1.5cm; size: auto; }
+        body { background: white !important; color: black !important; font-size: 10pt; }
+        .sidebar, .top-navbar, .btn-create, .action-link, .view-header, .no-print { display: none !important; }
+        .print-only-header { display: block !important; }
+        .main-workspace, .workspace-scroll { overflow: visible !important; padding: 0 !important; margin: 0 !important; display: block !important; }
+        .stats-grid { display: flex !important; flex-wrap: wrap; gap: 1rem !important; margin-bottom: 2rem !important; }
+        .stat-card { border: 1px solid #eee !important; margin-bottom: 0 !important; padding: 1.5rem !important; flex: 1; border-radius: 12px !important; box-shadow: none !important; transform: none !important; }
+        .returns-table-wrapper { border: none !important; border-radius: 0 !important; overflow: visible !important; box-shadow: none !important; }
+        .returns-table { border: 1px solid #eee !important; }
+        .returns-table th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 2px solid #000 !important; color: #000 !important; }
+        .returns-table td { border-bottom: 1px solid #eee !important; }
+        .returns-table tr { page-break-inside: avoid !important; }
+        .report-footer { margin-top: 5rem !important; page-break-inside: avoid !important; }
+        img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
 </style>
 @endsection
 
 @section('content')
+<div class="print-only-header" style="display: none;">
+    <div style="text-align: center; margin-bottom: 3rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 2rem;">
+        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.5rem; letter-spacing: -0.05em;">V’S Fashion</div>
+        <div style="font-size: 0.8rem; font-weight: 700; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.5rem;">Returns & Reversals Audit</div>
+        <div style="font-size: 0.85rem; color: #666; font-weight: 500;">
+            San Carlos City, Pangasinan<br>
+            Contact: +63 09158969268 • Official Quality Control Document
+        </div>
+    </div>
+</div>
+
 <div class="returns-container">
     <div class="view-header">
         <div>
@@ -261,9 +288,33 @@
     </div>
 
     @if($returns->hasPages())
-        <div style="margin-top: 3rem; display: flex; justify-content: center;">
+        <div style="margin-top: 3rem; display: flex; justify-content: center;" class="no-print">
             {{ $returns->links() }}
         </div>
     @endif
+
+    <div class="report-footer" style="display: none;">
+        <div style="display: flex; justify-content: flex-end;">
+            <div style="text-align: right; min-width: 250px;">
+                <div style="position: relative; display: inline-block; padding-top: 2rem;">
+                    <img src="{{ asset('assets/signatures/owner-signature.png') }}" style="height: 100px; position: absolute; top: -30px; left: 50%; transform: translateX(-50%) rotate(-3deg); z-index: 1; opacity: 0.95; pointer-events: none;">
+                    <div style="border-top: 2px solid #1a1a1a; width: 220px; margin: 0 auto;"></div>
+                    <strong style="font-size: 1.3rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.01em; margin-top: 0.75rem; display: block;">{{ App\Models\User::getOwnerName() }}</strong>
+                    <p style="font-size: 0.7rem; color: #666; font-weight: 700; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em;">Boutique Owner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: none;" class="print-only-footer">
+        <div style="margin-top: 4rem; text-align: center; color: #adb5bd; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;">
+            Generated on {{ date('F d, Y - h:i A') }} • Official V'S Fashion Audit Document
+        </div>
+    </div>
 </div>
+<style>
+    @media print {
+        .report-footer, .print-only-footer { display: block !important; }
+    }
+</style>
 @endsection

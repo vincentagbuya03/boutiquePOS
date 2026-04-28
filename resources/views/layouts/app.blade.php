@@ -434,6 +434,20 @@
             body { 
                 background: white !important; 
                 overflow: visible !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* Helper classes for reports */
+            .print-signature-block {
+                margin-top: 4rem !important;
+                display: flex !important;
+                justify-content: flex-end !important;
+                page-break-inside: avoid !important;
+            }
+            .print-table-row {
+                page-break-inside: avoid !important;
             }
         }
     </style>

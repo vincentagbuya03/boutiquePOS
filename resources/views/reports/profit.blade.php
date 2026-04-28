@@ -51,15 +51,16 @@
     .revenue-val { font-weight: 800; color: var(--color-editorial); font-size: 1rem; }
 
     @media print {
-        @page { margin: 1.5cm; }
-        body { background: white !important; color: black !important; }
-        .sidebar, .top-navbar, .btn-print, .filter-form, .profit-header { display: none !important; }
+        @page { margin: 1.5cm; size: auto; }
+        body { background: white !important; color: black !important; font-size: 10pt; }
+        .sidebar, .top-navbar, .btn-print, .filter-form, .profit-header, .no-print { display: none !important; }
         .print-only-header { display: block !important; }
-        .main-workspace, .workspace-scroll { overflow: visible !important; padding: 0 !important; display: block !important; }
-        .summary-card, .top-products-card { border: 1px solid #eee !important; box-shadow: none !important; margin-bottom: 2rem !important; }
+        .main-workspace, .workspace-scroll { overflow: visible !important; padding: 0 !important; margin: 0 !important; display: block !important; }
+        .summary-card, .top-products-card { border: 1px solid #eee !important; box-shadow: none !important; margin-bottom: 2rem !important; border-radius: 20px !important; }
         .analysis-grid { grid-template-columns: 1fr; gap: 2rem; }
-        .report-footer { margin-top: 3rem !important; padding-top: 2rem !important; page-break-inside: avoid; }
+        .report-footer { margin-top: 5rem !important; page-break-inside: avoid !important; }
         img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .product-rank-item { page-break-inside: avoid !important; }
     }
 </style>
 @endsection
@@ -189,14 +190,17 @@
     </div>
 </div>
 
-<div class="report-footer" style="margin-top: 4rem; display: flex; justify-content: flex-end; page-break-inside: avoid;">
+<div class="report-footer">
+    <div style="display: flex; justify-content: flex-end;">
         <div style="text-align: right; min-width: 250px;">
-            <div style="position: relative; display: inline-block;">
-                <img src="{{ asset('assets/signatures/owner-signature.png') }}" style="height: 110px; position: absolute; top: -60px; left: 50%; transform: translateX(-50%) rotate(-3deg); z-index: 1; opacity: 0.9; pointer-events: none;">
-                <strong style="font-size: 1.5rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.01em; position: relative; z-index: 0; display: block; border-top: 2px solid #f8f9fa; padding-top: 0.5rem; width: 220px; margin: 0 auto;">{{ App\Models\User::getOwnerName() }}</strong>
-                <p style="font-size: 0.75rem; color: #adb5bd; font-weight: 700; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em;">Boutique Owner</p>
+            <div style="position: relative; display: inline-block; padding-top: 2rem;">
+                <img src="{{ asset('assets/signatures/owner-signature.png') }}" style="height: 100px; position: absolute; top: -30px; left: 50%; transform: translateX(-50%) rotate(-3deg); z-index: 1; opacity: 0.95; pointer-events: none;">
+                <div style="border-top: 2px solid #1a1a1a; width: 220px; margin: 0 auto;"></div>
+                <strong style="font-size: 1.3rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.01em; margin-top: 0.75rem; display: block;">{{ App\Models\User::getOwnerName() }}</strong>
+                <p style="font-size: 0.7rem; color: #666; font-weight: 700; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em;">Boutique Owner</p>
             </div>
         </div>
+    </div>
 </div>
 
 <div style="margin-top: 4rem; text-align: center; color: #adb5bd; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;">
