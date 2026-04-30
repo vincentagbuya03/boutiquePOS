@@ -124,9 +124,8 @@
     <div class="stock-controller-card">
         <h3 style="font-size: 0.65rem; font-weight: 800; color: #adb5bd; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 3rem;">Digital Stock Controller</h3>
 
-        @forelse($inventories as $inventory)
         <div class="branch-adjust-rack">
-            <span class="branch-lbl">{{ $inventory->branch }} Branch</span>
+            <span class="branch-lbl">Current Stock</span>
 
             <div class="current-stock-pill">
                 <div style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase;">Current Archive Count</div>
@@ -137,7 +136,6 @@
             <form action="{{ route('inventory.update', $product) }}" method="POST">
                 @csrf
                 @method('PATCH')
-                <input type="hidden" name="branch" value="{{ $inventory->branch }}">
 
                 <div class="arch-field-group">
                     <label class="arch-field-label">Set New Quantity</label>
@@ -151,16 +149,10 @@
                 </div>
 
                 <button type="submit" class="btn-arch-save">
-                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i> Sync {{ $inventory->branch }} Stock
+                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i> Sync Stock
                 </button>
             </form>
         </div>
-        @empty
-            <div style="text-align: center; padding: 4rem; color: #adb5bd;">
-                <i class="fas fa-exclamation-circle" style="display: block; font-size: 2rem; margin-bottom: 1rem;"></i>
-                No branch records found for this piece.
-            </div>
-        @endforelse
     </div>
 </div>
 @endsection

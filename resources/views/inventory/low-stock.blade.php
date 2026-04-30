@@ -29,7 +29,6 @@
                             <th>Image</th>
                             <th>Product Name</th>
                             <th>Category</th>
-                            <th>Branch</th>
                             <th>Current Stock</th>
                             <th>Reorder Level</th>
                             <th>Shortage</th>
@@ -52,7 +51,6 @@
                                 <strong>{{ $inventory->product->name }}</strong>
                             </td>
                             <td>{{ $inventory->product->category->name }}</td>
-                            <td>{{ $inventory->branch }}</td>
                             <td>
                                 <span style="color: #f56565; font-weight: bold;">
                                     {{ $inventory->quantity }}

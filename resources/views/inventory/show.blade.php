@@ -47,12 +47,12 @@
 
         <div>
             <div class="card">
-                <h3 style="margin-bottom: 1rem;">Inventory by Branch</h3>
+                <h3 style="margin-bottom: 1rem;">Inventory Status</h3>
 
-                @forelse($inventories as $inventory)
+                @if($inventory)
                 <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #eee;">
                     <h4 style="margin-bottom: 0.5rem;">
-                        {{ $inventory->branch }} Branch
+                        Current Stock
                         @if($inventory->isBelowReorderLevel())
                             <span style="background: #fed7d7; color: #c53030; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">LOW STOCK</span>
                         @endif
@@ -72,9 +72,9 @@
                         </div>
                     </div>
                 </div>
-                @empty
+                @else
                 <p style="color: #999;">No inventory records for this product</p>
-                @endforelse
+                @endif
 
                 <a href="{{ route('inventory.edit', $product) }}" class="btn btn-success" style="width: 100%; text-align: center;">
                     <i class="fas fa-edit"></i> Adjust Inventory

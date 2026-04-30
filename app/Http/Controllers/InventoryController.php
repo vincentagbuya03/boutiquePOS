@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Inventory;
+use App\Models\ProductBatch;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
 {
@@ -67,16 +69,20 @@ class InventoryController extends Controller
             'reorder_level' => 'nullable|integer|min:0'
         ]);
 
-        $inventory = Inventory::firstOrCreate(
-            ['product_id' => $product->id],
-            ['quantity' => 0, 'reorder_level' => 5, 'last_updated' => today()]
-        );
+        DB::transaction(function () use ($product, $validated) {
+            $inventory = Inventory::firstOrCreate(
+                ['product_id' => $product->id],
+                ['quantity' => 0, 'reorder_level' => 5, 'last_updated' => today()]
+            );
 
-        $inventory->update([
-            'quantity' => $validated['quantity'],
-            'reorder_level' => $validated['reorder_level'] ?? $inventory->reorder_level,
-            'last_updated' => today()
-        ]);
+            $this->syncBatchQuantities($product, (int) $validated['quantity']);
+
+            $inventory->update([
+                'quantity' => $validated['quantity'],
+                'reorder_level' => $validated['reorder_level'] ?? $inventory->reorder_level,
+                'last_updated' => today()
+            ]);
+        });
 
         return back()->with('success', 'Inventory updated successfully');
     }
@@ -114,5 +120,43 @@ class InventoryController extends Controller
             ->get();
         
         return view('inventory.low-stock', compact('lowStockItems'));
+    }
+
+    private function syncBatchQuantities(Product $product, int $targetQuantity): void
+    {
+        $batches = ProductBatch::where('product_id', $product->id)
+            ->orderBy('date_received')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+
+        $currentBatchQuantity = (int) $batches->sum('quantity');
+        $difference = $targetQuantity - $currentBatchQuantity;
+
+        if ($difference === 0) {
+            return;
+        }
+
+        if ($difference < 0) {
+            $remainingToRemove = abs($difference);
+
+            foreach ($batches as $batch) {
+                if ($remainingToRemove <= 0) {
+                    break;
+                }
+
+                $deduct = min($batch->quantity, $remainingToRemove);
+                $batch->decrement('quantity', $deduct);
+                $remainingToRemove -= $deduct;
+            }
+
+            return;
+        }
+
+        $batch = $batches->last();
+
+        if ($batch) {
+            $batch->increment('quantity', $difference);
+        }
     }
 }

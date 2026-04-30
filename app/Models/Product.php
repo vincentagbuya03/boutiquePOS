@@ -66,7 +66,7 @@ class Product extends Model
     }
 
     /**
-     * Get the first available batch (FIFO) for this product.
+     * Get the active price batch: the oldest non-archived batch that still has stock.
      */
     public function firstAvailableBatch()
     {

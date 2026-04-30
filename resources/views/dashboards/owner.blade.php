@@ -224,7 +224,7 @@
 <div class="stats-main-grid">
     <div class="stat-arch-card">
         <div class="stat-arch-label">Total Sales</div>
-        <div class="stat-arch-value">₱{{ number_format($totalSales / 1000, 1) }}k</div>
+        <div class="stat-arch-value">₱{{ number_format($totalSales) }}</div>
         <div class="stat-arch-meta stat-meta-positive">
             <i class="fas fa-chart-line"></i> Lifetime Performance
         </div>
@@ -251,7 +251,7 @@
 
     <div class="stat-arch-card">
         <div class="stat-arch-label">Net Earnings</div>
-        <div class="stat-arch-value">₱{{ number_format($totalProfit / 1000, 1) }}k</div>
+        <div class="stat-arch-value">₱{{ number_format($totalProfit) }}</div>
         <div class="stat-arch-meta stat-meta-positive" style="color: #166534;">
             <i class="fas fa-coins"></i> Total Realized Profit
         </div>

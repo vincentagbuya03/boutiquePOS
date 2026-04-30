@@ -54,7 +54,7 @@ class ProductSeeder extends Seeder
                 'product_id' => $product->id,
                 'supplier_id' => $supplier->id,
                 'batch_number' => 'B-' . date('Y') . '-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT),
-                'quantity' => 80,
+                'quantity' => 3,
                 'cost_price' => $prices[$index]['cost'],
                 'selling_price' => $prices[$index]['selling'],
                 'date_received' => now()->toDateString(),
@@ -63,7 +63,7 @@ class ProductSeeder extends Seeder
             // Add global inventory for the site
             Inventory::create([
                 'product_id' => $product->id,
-                'quantity' => 80, // Consolidated quantity
+                'quantity' => 3, // Consolidated quantity
                 'reorder_level' => 10,
                 'last_updated' => now()->toDateString()
             ]);

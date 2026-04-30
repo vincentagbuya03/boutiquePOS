@@ -54,11 +54,23 @@ class ProductBatchController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
-            // Create the batch
+            $inventory = Inventory::where('product_id', $validated['product_id'])
+                ->lockForUpdate()
+                ->first();
+
+            $previousInventoryQuantity = (int) ($inventory?->quantity ?? 0);
+
+            if ($previousInventoryQuantity <= 0) {
+                ProductBatch::where('product_id', $validated['product_id'])
+                    ->where('quantity', '>', 0)
+                    ->update(['quantity' => 0]);
+            }
+
+            // Create the batch that will drive the active price while it has stock.
             ProductBatch::create($validated);
 
             // Update or Create inventory record
-            $inventory = Inventory::firstOrCreate(
+            $inventory ??= Inventory::firstOrCreate(
                 ['product_id' => $validated['product_id']],
                 ['quantity' => 0, 'reorder_level' => 5, 'last_updated' => now()]
             );
