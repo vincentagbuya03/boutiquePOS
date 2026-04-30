@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('online_orders') || Schema::hasColumn('online_orders', 'branch')) {
+            return;
+        }
+
         Schema::table('online_orders', function (Blueprint $table) {
             $table->string('branch')->nullable()->after('platform');
         });
@@ -21,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('online_orders') || ! Schema::hasColumn('online_orders', 'branch')) {
+            return;
+        }
+
         Schema::table('online_orders', function (Blueprint $table) {
             $table->dropColumn('branch');
         });

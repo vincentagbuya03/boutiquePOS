@@ -12,7 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('ALTER TABLE online_orders MODIFY quantity INT NULL');
+        if (Schema::hasTable('online_orders')) {
+            DB::statement('ALTER TABLE online_orders MODIFY quantity INT NULL');
+        }
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE online_orders MODIFY quantity INT NOT NULL');
+        if (Schema::hasTable('online_orders')) {
+            DB::statement('ALTER TABLE online_orders MODIFY quantity INT NOT NULL');
+        }
     }
 };

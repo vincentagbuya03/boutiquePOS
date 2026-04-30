@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('online_orders', function (Blueprint $table) {
-            $table->foreignId('customer_id')->nullable()->after('id')->constrained('customers')->onDelete('set null');
-        });
+        if (Schema::hasTable('online_orders') && ! Schema::hasColumn('online_orders', 'customer_id')) {
+            Schema::table('online_orders', function (Blueprint $table) {
+                $table->foreignId('customer_id')->nullable()->after('id')->constrained('customers')->onDelete('set null');
+            });
+        }
 
-        Schema::table('sales', function (Blueprint $table) {
-            $table->foreignId('customer_id')->nullable()->after('id')->constrained('customers')->onDelete('set null');
-        });
+        if (Schema::hasTable('sales') && ! Schema::hasColumn('sales', 'customer_id')) {
+            Schema::table('sales', function (Blueprint $table) {
+                $table->foreignId('customer_id')->nullable()->after('id')->constrained('customers')->onDelete('set null');
+            });
+        }
     }
 
     /**
@@ -25,14 +29,18 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('online_orders', function (Blueprint $table) {
-            $table->dropForeign(['customer_id']);
-            $table->dropColumn('customer_id');
-        });
+        if (Schema::hasTable('online_orders') && Schema::hasColumn('online_orders', 'customer_id')) {
+            Schema::table('online_orders', function (Blueprint $table) {
+                $table->dropForeign(['customer_id']);
+                $table->dropColumn('customer_id');
+            });
+        }
 
-        Schema::table('sales', function (Blueprint $table) {
-            $table->dropForeign(['customer_id']);
-            $table->dropColumn('customer_id');
-        });
+        if (Schema::hasTable('sales') && Schema::hasColumn('sales', 'customer_id')) {
+            Schema::table('sales', function (Blueprint $table) {
+                $table->dropForeign(['customer_id']);
+                $table->dropColumn('customer_id');
+            });
+        }
     }
 };

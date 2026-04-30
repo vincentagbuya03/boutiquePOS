@@ -202,13 +202,15 @@
                 </div>
                 @if($sale->cash_received > 0)
                 <div class="summary-row" style="margin-top: 1rem; color: #666;">
-                    <span>Cash Received</span>
+                    <span>{{ $sale->payment_method === 'gcash' ? 'GCash Amount' : 'Cash Received' }}</span>
                     <span>₱{{ number_format($sale->cash_received, 2) }}</span>
                 </div>
+                @if($sale->payment_method !== 'gcash')
                 <div class="summary-row" style="color: #1a1a1a; font-weight: 800; border-top: 1px dashed rgba(128, 32, 48, 0.1); padding-top: 0.5rem;">
                     <span>Change Given</span>
                     <span>₱{{ number_format($sale->change_amount, 2) }}</span>
                 </div>
+                @endif
                 @endif
                 <div style="margin-top: 1.5rem; text-align: center;">
                     <span style="background: white; color: var(--color-editorial); padding: 0.5rem 1.5rem; border-radius: 100px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(128, 32, 48, 0.1);">
@@ -236,17 +238,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Automatically trigger print if redirected from a successful sale
-        @if(session('success'))
-            setTimeout(function() {
-                window.print();
-            }, 800);
-        @endif
-    });
-</script>
 @endsection

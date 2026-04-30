@@ -12,8 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('online_orders')) {
+            return;
+        }
+
         Schema::table('online_orders', function (Blueprint $table) {
-            $table->dropColumn(['customer_name', 'customer_email', 'customer_phone']);
+            $columns = array_filter(
+                ['customer_name', 'customer_email', 'customer_phone'],
+                fn ($column) => Schema::hasColumn('online_orders', $column)
+            );
+
+            if ($columns) {
+                $table->dropColumn($columns);
+            }
         });
     }
 
@@ -22,10 +33,20 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('online_orders')) {
+            return;
+        }
+
         Schema::table('online_orders', function (Blueprint $table) {
-            $table->string('customer_name', 100);
-            $table->string('customer_email')->nullable();
-            $table->string('customer_phone', 20)->nullable();
+            if (! Schema::hasColumn('online_orders', 'customer_name')) {
+                $table->string('customer_name', 100);
+            }
+            if (! Schema::hasColumn('online_orders', 'customer_email')) {
+                $table->string('customer_email')->nullable();
+            }
+            if (! Schema::hasColumn('online_orders', 'customer_phone')) {
+                $table->string('customer_phone', 20)->nullable();
+            }
         });
     }
 };

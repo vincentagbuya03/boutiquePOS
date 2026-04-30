@@ -34,7 +34,7 @@ class SalesController extends Controller
     public function create()
     {
         // Only Cashier and Owner can create sales
-        if (!auth()->user()->canAccessPOS()) {
+        if (!Auth::user()->canAccessPOS()) {
             abort(403, 'You do not have permission to create sales');
         }
 
@@ -49,7 +49,7 @@ class SalesController extends Controller
     public function store(Request $request)
     {
         // Only Cashier and Owner can create sales
-        if (!auth()->user()->canAccessPOS()) {
+        if (!Auth::user()->canAccessPOS()) {
             abort(403, 'You do not have permission to create sales');
         }
 
@@ -61,7 +61,7 @@ class SalesController extends Controller
         }
 
         $validated = $request->validate([
-            'payment_method' => 'required|string',
+            'payment_method' => 'required|in:cash,gcash',
             'discount_type' => 'required|in:none,pwd,senior_citizen',
             'discount_amount' => 'required|numeric|min:0',
             'cash_received' => 'nullable|numeric|min:0',

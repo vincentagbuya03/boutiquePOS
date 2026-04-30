@@ -66,14 +66,20 @@ class DashboardController extends Controller
         // Calculate total earnings (Profit)
         $totalProfit = 0;
         
-        // From Sales
-        $sales = Sale::with('items.product.firstAvailableBatch')->get();
+        // From Sales - improved to account for discounts and sold-out items
+        $sales = Sale::with(['items.product.latestBatch'])->get();
         foreach($sales as $sale) {
+            $grossProfit = 0;
             foreach($sale->items as $item) {
-                if($item->product && $item->product->firstAvailableBatch) {
-                    $totalProfit += ($item->unit_price - $item->product->firstAvailableBatch->cost_price) * $item->quantity;
+                if($item->product) {
+                    // Use latestBatch as cost source even if current stock is 0
+                    $batch = $item->product->latestBatch;
+                    $costPrice = $batch ? $batch->cost_price : 0;
+                    $grossProfit += ($item->unit_price - $costPrice) * $item->quantity;
                 }
             }
+            // Realized profit must subtract the discount applied to the sale
+            $totalProfit += ($grossProfit - ($sale->discount_amount ?? 0));
         }
 
         return view('dashboards.owner', compact(
@@ -208,4 +214,3 @@ class DashboardController extends Controller
         ));
     }
 }
-

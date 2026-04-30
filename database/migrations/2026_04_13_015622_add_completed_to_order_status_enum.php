@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('online_orders')) {
+            return;
+        }
+
         Schema::table('online_orders', function (Blueprint $table) {
             DB::statement("ALTER TABLE online_orders MODIFY COLUMN order_status ENUM('pending', 'approved', 'shipped', 'delivered', 'completed', 'cancelled', 'returned') DEFAULT 'pending'");
         });
@@ -19,6 +23,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('online_orders')) {
+            return;
+        }
+
         Schema::table('online_orders', function (Blueprint $table) {
             DB::statement("ALTER TABLE online_orders MODIFY COLUMN order_status ENUM('pending', 'approved', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending'");
         });

@@ -1,440 +1,646 @@
 @extends('layouts.app')
 
-@section('title', 'Point of Sale')
+@section('title', 'POS Terminal')
 
 @section('styles')
 <style>
     :root {
-        --color-editorial: #802030; /* Deep Maroon */
-        --color-bg-workspace: #f8f9fa;
-        --color-border-arch: #f1f1f1;
-        --sidebar-checkout: 420px;
+        --pos-accent: #802030;
+        --pos-bg: #fdfdfd;
+        --pos-glass: rgba(255, 255, 255, 0.7);
+        --pos-border: rgba(0, 0, 0, 0.05);
+        --receipt-width: 330px;
     }
 
     body {
-        background-color: var(--color-bg-workspace);
-        font-family: 'Inter', sans-serif;
-        color: #1a1a1a;
+        background-color: #f8f9fa;
         overflow: hidden;
     }
 
-    .pos-layout-shell {
+    .pos-shell {
         display: flex;
-        height: calc(100vh - 80px); /* Adjust for top navbar */
-        gap: 1.5rem;
-        padding: 1.5rem 2rem;
+        height: calc(100vh - 88px);
+        gap: 1rem;
+        padding: 0.85rem 1.5rem;
+        animation: fadeIn 0.6s ease-out;
     }
 
-    /* Product Explorer Side */
-    .pos-explorer-side {
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Product Explorer */
+    .pos-main-content {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
         min-width: 0;
     }
 
-    .pos-action-tray {
-        background: white;
-        padding: 1.25rem;
-        border-radius: 24px;
-        border: 1px solid var(--color-border-arch);
+    .pos-top-control {
+        background: var(--pos-glass);
+        backdrop-filter: blur(10px);
+        padding: 0.85rem 1rem;
+        border-radius: 20px;
+        border: 1px solid var(--pos-border);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        gap: 0.85rem;
     }
 
-    .arch-search-field {
+    .search-wrap {
         position: relative;
-        display: flex;
-        align-items: center;
     }
 
-    .arch-search-field i {
+    .search-wrap i {
         position: absolute;
-        left: 1.25rem;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
         color: #adb5bd;
     }
 
-    .arch-search-input {
+    .search-pos-input {
         width: 100%;
-        padding: 0.85rem 1.25rem 0.85rem 3rem;
-        background: #f8f9fa;
-        border: 1px solid #eee;
-        border-radius: 12px;
+        padding: 0.8rem 1.25rem 0.8rem 3.25rem;
+        background: #f1f3f5;
+        border: 2px solid transparent;
+        border-radius: 14px;
         font-size: 0.9rem;
         font-weight: 600;
-        transition: all 0.2s;
+        transition: all 0.3s;
         outline: none;
     }
 
-    .arch-search-input:focus {
+    .search-pos-input:focus {
         background: white;
-        border-color: var(--color-editorial);
-        box-shadow: 0 10px 20px rgba(128, 32, 48, 0.05);
+        border-color: var(--pos-accent);
+        box-shadow: 0 10px 25px rgba(128, 32, 48, 0.05);
     }
 
-    .category-ribbon {
+    .filter-ribbon {
         display: flex;
         gap: 0.75rem;
         overflow-x: auto;
         padding-bottom: 0.25rem;
         scrollbar-width: none;
     }
-    .category-ribbon::-webkit-scrollbar { display: none; }
+    .filter-ribbon::-webkit-scrollbar { display: none; }
 
-    .arch-category-btn {
+    .filter-pill {
         white-space: nowrap;
-        padding: 0.65rem 1.5rem;
+        padding: 0.55rem 1.1rem;
         background: white;
         border: 1px solid #eee;
         border-radius: 100px;
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
         color: #adb5bd;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
     }
 
-    .arch-category-btn.active {
-        background: var(--color-editorial);
+    .filter-pill.active {
+        background: var(--pos-accent);
         color: white;
-        border-color: var(--color-editorial);
+        border-color: var(--pos-accent);
+        box-shadow: 0 8px 20px rgba(128, 32, 48, 0.15);
     }
 
-    .arch-product-grid {
+    .product-scroller {
         flex: 1;
         overflow-y: auto;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 220px));
-        gap: 1.25rem;
-        padding-right: 0.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(145px, 175px));
+        grid-auto-rows: min-content;
         align-content: start;
+        align-items: start;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        scrollbar-width: thin;
+        scrollbar-color: #eee transparent;
     }
 
-    .arch-product-card {
+    .product-scroller::-webkit-scrollbar { width: 6px; }
+    .product-scroller::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+
+    .pos-product-card {
         background: white;
-        border-radius: 20px;
-        padding: 1rem;
-        border: 1px solid var(--color-border-arch);
+        border-radius: 16px;
+        padding: 0.65rem;
+        border: 1px solid var(--pos-border);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        cursor: pointer;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 0.55rem;
+        min-height: 0;
+    }
+
+    .pos-product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px rgba(0,0,0,0.04);
+        border-color: var(--pos-accent);
+    }
+
+    .pos-img-box {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #f9f9f9;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         position: relative;
     }
 
-    .arch-product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.04);
-        border-color: var(--color-editorial);
+    .pos-img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .arch-img-frame {
-        width: 100%;
-        aspect-ratio: 1/1;
-        background: #fdfdfd;
-        border-radius: 18px;
+    .pos-img-box i {
+        font-size: 1.8rem;
+        color: #eee;
+    }
+
+    .pos-card-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .pos-card-name {
+        font-weight: 800;
+        font-size: 0.78rem;
+        color: #1a1a1a;
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pos-card-price {
+        font-weight: 900;
+        color: var(--pos-accent);
+        font-size: 0.95rem;
+    }
+
+    /* Receipt Side */
+    .pos-receipt-panel {
+        width: var(--receipt-width);
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--pos-border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.04);
+    }
+
+    .receipt-header {
+        padding: 1.1rem 1.35rem;
+        background: #fdf2f4;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .receipt-header::after {
+        content: "";
+        position: absolute;
+        bottom: -12px;
+        left: 0;
+        right: 0;
+        height: 24px;
+        background: white;
+        border-radius: 100% 100% 0 0;
+    }
+
+    .receipt-header span {
+        font-size: 0.58rem;
+        font-weight: 800;
+        color: #adb5bd;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .receipt-header h2 {
+        font-family: 'Bodoni Moda', serif;
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--pos-accent);
+        margin: 0;
+    }
+
+    .cart-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.85rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .empty-cart-state {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #e9ecef;
+        gap: 1rem;
+    }
+
+    .empty-cart-state i { font-size: 2.4rem; }
+    .empty-cart-state p { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #adb5bd; }
+
+    .cart-item-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #fcfcfc;
+        border-radius: 14px;
+        border: 1px solid #f1f1f1;
+    }
+
+    .cart-item-thumb {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: white;
+        overflow: hidden;
+        border: 1px solid #eee;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    .arch-img-frame img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.6s;
-    }
+    .cart-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-    .arch-product-card:hover .arch-img-frame img { transform: scale(1.1); }
-
-    .arch-product-name { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; margin-top: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .arch-product-price { font-size: 1rem; font-weight: 800; color: var(--color-editorial); }
-
-    /* Checkout Side */
-    .pos-checkout-side {
-        width: var(--sidebar-checkout);
-        background: white;
-        border-radius: 30px;
-        border: 1px solid var(--color-border-arch);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.03);
-    }
-
-    .checkout-upper {
-        padding: 2rem;
-        background: #fdf2f4;
-        border-bottom: 1px solid rgba(128, 32, 48, 0.05);
-    }
-
-    .checkout-upper h2 { font-family: 'Bodoni Moda', serif; font-size: 1.75rem; font-weight: 800; color: var(--color-editorial); }
-    .checkout-upper span { font-size: 0.7rem; font-weight: 800; color: #adb5bd; text-transform: uppercase; letter-spacing: 0.1em; }
-
-    .cart-shelf {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .arch-cart-item {
-        display: flex;
-        gap: 1.25rem;
-        padding: 1.25rem;
-        background: #fcfcfc;
-        border: 1px solid #f1f1f1;
-        border-radius: 20px;
-        align-items: center;
-    }
-
-    .item-qty-control {
+    .cart-item-main { flex: 1; min-width: 0; }
+    .cart-item-title { font-size: 0.78rem; font-weight: 800; color: #1a1a1a; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .qty-widget {
         display: flex;
         align-items: center;
+        gap: 0.55rem;
         background: white;
-        border: 1px solid #eee;
+        padding: 0.25rem 0.5rem;
         border-radius: 100px;
-        padding: 0.25rem;
-        gap: 0.75rem;
+        border: 1px solid #eee;
+        width: fit-content;
     }
 
-    .qty-step-btn {
-        width: 28px;
-        height: 28px;
+    .qty-btn {
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
         border: none;
         background: #f8f9fa;
-        color: #1a1a1a;
-        font-weight: 800;
+        font-size: 0.8rem;
+        font-weight: 900;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
     }
-    .qty-step-btn:hover { background: var(--color-editorial); color: white; }
 
-    .checkout-summary-box {
-        padding: 2rem;
-        background: #fdfdfd;
-        border-top: 1px solid var(--color-border-arch);
+    .qty-btn:hover { background: var(--pos-accent); color: white; }
+
+    .summary-section {
+        padding: 1.35rem;
+        background: white;
+        border-top: 1px solid #f8f9fa;
     }
 
-    .summary-line { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.85rem; font-weight: 600; color: #999; }
-    .summary-line.grand-total { border-top: 1px solid #eee; margin-top: 1.25rem; padding-top: 1.25rem; font-size: 2rem; font-weight: 800; color: #1a1a1a; }
+    .total-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px dashed #f1f1f1;
+    }
 
-    .checkout-primary-btn {
-        background: var(--color-editorial);
+    .total-label { font-size: 0.78rem; font-weight: 800; color: #adb5bd; text-transform: uppercase; }
+    .total-value { font-size: 1.8rem; font-weight: 900; color: #1a1a1a; letter-spacing: -0.02em; }
+
+    .pos-btn-primary {
+        background: var(--pos-accent);
         color: white;
         border: none;
         width: 100%;
-        padding: 1.25rem;
-        border-radius: 18px;
-        font-size: 1rem;
-        font-weight: 800;
+        padding: 1rem;
+        border-radius: 16px;
+        font-weight: 900;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 10px 25px rgba(128, 32, 48, 0.2);
+        margin-top: 1rem;
+        transition: all 0.4s;
+        box-shadow: 0 10px 30px rgba(128, 32, 48, 0.25);
     }
 
-    .checkout-primary-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(128, 32, 48, 0.3); }
+    .pos-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(128, 32, 48, 0.35);
+    }
 
-    /* Modal Styling */
-    .arch-modal-overlay {
+    /* Modal */
+    .pos-modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
-        backdrop-filter: blur(8px);
-        z-index: 2000;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(15px);
+        z-index: 9999;
         align-items: center;
         justify-content: center;
+        padding: 1.5rem;
     }
 
-    .arch-modal-box {
+    .pos-modal {
         background: white;
-        border-radius: 30px;
-        padding: 3rem;
+        border-radius: 32px;
         width: 100%;
-        max-width: 550px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        max-width: 520px;
+        padding: 2.5rem;
+        position: relative;
+        animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 40px 100px rgba(0,0,0,0.2);
     }
 
-    .arch-field-label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; margin-bottom: 0.75rem; }
-    .arch-select-custom {
+    .modal-close {
+        position: absolute;
+        right: 1.5rem;
+        top: 1.5rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid #f1f1f1;
+        background: white;
+        color: #adb5bd;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        background: #fdf2f4;
+        color: var(--pos-accent);
+        border-color: #fdf2f4;
+    }
+
+    .payment-highlight-box {
+        background: #fdf2f4;
+        border-radius: 24px;
+        padding: 1.75rem;
+        border: 1px solid rgba(128, 32, 48, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .amount-input-wrap {
+        position: relative;
+        background: white;
+        border: 2px solid #eee;
+        border-radius: 18px;
+        padding: 1rem 1.5rem;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+    .amount-input-wrap:focus-within {
+        border-color: var(--pos-accent);
+        box-shadow: 0 10px 25px rgba(128, 32, 48, 0.08);
+    }
+
+    .amount-input-wrap input {
+        border: none;
+        background: transparent;
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: #1a1a1a;
         width: 100%;
-        padding: 1rem;
-        background: #f8f9fa;
-        border: 1px solid #eee;
-        border-radius: 14px;
-        font-weight: 700;
-        font-size: 0.9rem;
         outline: none;
+        text-align: right;
+    }
+
+    .amount-input-wrap .currency-prefix {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #adb5bd;
+    }
+
+    .discount-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .discount-option {
+        cursor: pointer;
+    }
+
+    .discount-option input { display: none; }
+
+    .discount-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.75rem;
+        border-radius: 16px;
+        border: 2px solid #f1f1f1;
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .discount-box i { font-size: 0.9rem; color: #adb5bd; }
+    .discount-box span { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; }
+
+    .discount-option input:checked + .discount-box {
+        border-color: var(--pos-accent);
+        background: #fdf2f4;
+    }
+
+    .discount-option input:checked + .discount-box i,
+    .discount-option input:checked + .discount-box span {
+        color: var(--pos-accent);
+    }
+
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.9) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="pos-layout-shell">
-    <!-- PRODUCT EXPLORER -->
-    <div class="pos-explorer-side">
-        <div class="pos-action-tray">
-            <div class="arch-search-field">
+<div class="pos-shell">
+    <!-- LEFT: PRODUCT EXPLORER -->
+    <div class="pos-main-content">
+        <div class="pos-top-control">
+            <div class="search-wrap">
                 <i class="fas fa-search"></i>
-                <input type="text" id="posProductSearch" class="arch-search-input" placeholder="Search V'S Fashion...">
+                <input type="text" id="posSearch" class="search-pos-input" placeholder="Search the collection...">
             </div>
-            <div class="category-ribbon" id="categoryScroll">
-                <div class="arch-category-btn active" data-category="all">All V'S Fashion</div>
+            <div class="filter-ribbon">
+                <div class="filter-pill active" data-category="all">All Pieces</div>
                 @foreach($products->groupBy('category.name')->keys() as $category)
-                    <div class="arch-category-btn" data-category="{{ $category }}">{{ $category }}</div>
+                    <div class="filter-pill" data-category="{{ $category }}">{{ $category }}</div>
                 @endforeach
             </div>
         </div>
 
-        <div class="arch-product-grid" id="posProductGrid">
+        <div class="product-scroller" id="productGrid">
             @foreach($products as $product)
                 @if($product->firstAvailableBatch)
-                    <div class="arch-product-card" 
-                         data-id="{{ $product->id }}" 
-                         data-name="{{ $product->name }}" 
-                         data-size="{{ $product->size }}"
-                         data-price="{{ $product->firstAvailableBatch->selling_price }}" 
-                         data-category="{{ $product->category->name }}"
-                         onclick="posAddToCart({{ json_encode(['id' => $product->id, 'name' => $product->name, 'size' => $product->size, 'price' => $product->firstAvailableBatch->selling_price, 'image' => $product->image_path ? asset('storage/' . $product->image_path) : null]) }})">
-                        <div class="arch-img-frame">
-                            @if($product->image_path)
-                                <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
-                            @else
-                                <i class="fas fa-archive" style="font-size: 3rem; color: #f1f1f1;"></i>
-                            @endif
-                        </div>
-                        <div>
-                            <div class="arch-product-name">{{ $product->name }} {{ $product->size ? '('.$product->size.')' : '' }}</div>
-                            <div class="arch-product-price">₱{{ number_format($product->firstAvailableBatch->selling_price, 2) }}</div>
-                        </div>
+                <div class="pos-product-card" 
+                     data-id="{{ $product->id }}" 
+                     data-name="{{ $product->name }}" 
+                     data-category="{{ $product->category->name }}"
+                     data-size="{{ $product->size }}"
+                     onclick="addToCart({{ json_encode(['id' => $product->id, 'name' => $product->name, 'size' => $product->size, 'price' => $product->firstAvailableBatch->selling_price, 'image' => $product->image_path ? asset('storage/' . $product->image_path) : null]) }})">
+                    <div class="pos-img-box">
+                        @if($product->image_path)
+                            <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+                        @else
+                            <i class="fas fa-image"></i>
+                        @endif
                     </div>
+                    <div class="pos-card-info">
+                        <span class="pos-card-name">{{ $product->name }} {{ $product->size ? '('.$product->size.')' : '' }}</span>
+                        <span class="pos-card-price">₱{{ number_format($product->firstAvailableBatch->selling_price, 2) }}</span>
+                    </div>
+                </div>
                 @endif
             @endforeach
         </div>
     </div>
 
-    <!-- CHECKOUT PANEL -->
-    <div class="pos-checkout-side">
-        <div class="checkout-upper">
-            <span>V's Sales Receipt</span>
+    <!-- RIGHT: RECEIPT PANEL -->
+    <div class="pos-receipt-panel">
+        <div class="receipt-header">
+            <span>Official Register</span>
             <h2>Current Order</h2>
-            <div id="orderId" style="font-size: 0.8rem; font-weight: 800; color: #999; margin-top: 0.5rem;">#ARC-{{ date('ymd') }}-{{ rand(1000, 9999) }}</div>
+            <div id="orderNumber" style="font-size: 0.7rem; font-weight: 800; color: #adb5bd; margin-top: 0.5rem; letter-spacing: 0.1em;">#VFS-{{ date('ymd') }}-{{ rand(1000,9999) }}</div>
         </div>
 
-        <div class="cart-shelf" id="posCartList">
-            <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #adb5bd; gap: 1.5rem; opacity: 0.5;">
-                <i class="fas fa-shopping-basket" style="font-size: 5rem;"></i>
-                <p style="font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.15em;">Awaiting Selections</p>
+        <div class="cart-container" id="cartItemsList">
+            <div class="empty-cart-state">
+                <i class="fas fa-shopping-bag"></i>
+                <p>Bag is empty</p>
             </div>
         </div>
 
-        <div class="checkout-summary-box">
-            <div class="summary-line">
-                <span>Items Subtotal</span>
-                <span id="posItemsCount">0 Items</span>
+        <div class="summary-section">
+            <div class="d-flex justify-content-between mb-2">
+                <span style="font-weight: 700; color: #adb5bd; font-size: 0.72rem; text-transform: uppercase;">Subtotal</span>
+                <span id="subtotalDisplay" style="font-weight: 800; color: #1a1a1a;">₱0.00</span>
             </div>
-            <div class="summary-line">
-            </div>
-            <div class="summary-line grand-total">
-                <span>Total</span>
-                <span id="posTotalAmount">₱0.00</span>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 1rem; margin: 1.5rem 0;">
-                <button onclick="posClearCart()" style="background: #f8f9fa; border: none; border-radius: 14px; font-weight: 800; font-size: 0.7rem; color: #adb5bd; text-transform: uppercase;">
-                    Clear
-                </button>
-                <input type="hidden" id="posBranch" value="San Carlos">
-                <div style="background: #fdf2f4; padding: 0.75rem; border-radius: 14px; border: 1px solid rgba(128, 32, 48, 0.1); font-weight: 800; font-size: 0.7rem; color: var(--color-editorial); display: flex; align-items: center; justify-content: center; grid-column: 1 / -1; text-transform: uppercase; letter-spacing: 0.05em;">
-                    <i class="fas fa-map-marker-alt" style="margin-right: 0.5rem; font-size: 0.8rem;"></i> Location: San Carlos Branch
-                </div>
+            <div class="d-flex justify-content-between">
+                <span style="font-weight: 700; color: #adb5bd; font-size: 0.72rem; text-transform: uppercase;">Items</span>
+                <span id="itemsCountDisplay" style="font-weight: 800; color: #1a1a1a;">0 Units</span>
             </div>
 
-            <button class="checkout-primary-btn" onclick="openPaymentModal()">
-                Complete Sales <i class="fas fa-arrow-right" style="margin-left: 0.75rem;"></i>
+            <div class="total-line">
+                <span class="total-label">Total</span>
+                <span class="total-value" id="totalDisplay">₱0.00</span>
+            </div>
+
+            <div style="background: #fdf2f4; padding: 0.65rem; border-radius: 14px; margin-top: 1rem; border: 1px solid rgba(128, 32, 48, 0.08); display: flex; align-items: center; justify-content: center; gap: 0.45rem;">
+                <i class="fas fa-location-dot" style="color: var(--pos-accent); font-size: 0.8rem;"></i>
+                <span style="font-weight: 800; font-size: 0.6rem; color: var(--pos-accent); text-transform: uppercase; letter-spacing: 0.05em;">San Carlos Branch</span>
+            </div>
+
+            <button class="pos-btn-primary" onclick="openCheckout()">
+                Proceed to Checkout
             </button>
         </div>
     </div>
 </div>
 
-<!-- PAYMENT MODAL -->
-<div id="paymentModal" class="arch-modal-overlay">
-    <div class="arch-modal-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
-            <h2 style="font-family: 'Bodoni Moda', serif; font-size: 2rem; font-weight: 800; color: var(--color-editorial); margin: 0;">Payment Settlement</h2>
-            <button onclick="closePaymentModal()" style="background: none; border: none; font-size: 2rem; cursor: pointer; color: #adb5bd;">&times;</button>
-        </div>
+<!-- CHECKOUT MODAL -->
+<div id="checkoutModal" class="pos-modal-overlay">
+    <div class="pos-modal">
+        <button onclick="closeCheckout()" class="modal-close">&times;</button>
+        
+        <h3 style="font-family: 'Bodoni Moda', serif; font-size: 1.75rem; font-weight: 900; color: var(--pos-accent); margin-bottom: 2rem;">Payment Details</h3>
 
-        <form id="finalSaleForm" action="{{ route('sales.store') }}" method="POST">
+        <form id="posSaleForm" action="{{ route('sales.store') }}" method="POST">
             @csrf
-            <input type="hidden" id="hiddenItems" name="items">
-            <input type="hidden" name="type" value="in_store">
+            <input type="hidden" id="saleItems" name="items">
             
-            <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                <div>
-                    <label class="arch-field-label">Payment Method</label>
-                    <select name="payment_method" class="arch-select-custom" required id="finalPaymentMethod">
-                        <option value="cash">Cash Settlement</option>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="debit_card">Debit Card</option>
-                        <option value="online_transfer">Electronic Transfer</option>
-                    </select>
+            <div class="mb-4">
+                <label style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; margin-bottom: 0.5rem; display: block; letter-spacing: 0.05em;">Payment Method</label>
+                <select name="payment_method" id="paymentMethod" class="form-select" style="border-radius: 14px; padding: 0.85rem; font-weight: 700; border: 2px solid #f1f1f1; font-size: 0.9rem;" required onchange="togglePaymentFields()">
+                    <option value="cash">Cash Settlement</option>
+                    <option value="gcash">GCash Transfer</option>
+                </select>
+            </div>
+
+            <div class="payment-highlight-box">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span style="font-weight: 800; color: var(--pos-accent); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Amount Due</span>
+                    <strong id="checkoutTotal" style="font-size: 1.75rem; color: #1a1a1a; letter-spacing: -0.02em;">₱0.00</strong>
+                </div>
+
+                <div id="cashFields">
+                    <label style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; margin-bottom: 0.5rem; display: block; letter-spacing: 0.05em;">Amount Received</label>
+                    <div class="amount-input-wrap">
+                        <span class="currency-prefix">₱</span>
+                        <input type="number" id="amountReceived" step="0.01" placeholder="0.00">
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" style="border-color: rgba(128, 32, 48, 0.1) !important;">
+                        <span style="font-weight: 800; color: #adb5bd; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">Change Due</span>
+                        <strong id="changeDue" style="font-size: 1.35rem; color: #198754;">₱0.00</strong>
+                    </div>
                 </div>
             </div>
 
-            <!-- Discount Options Section -->
-            <div style="background: #fff8f8; padding: 1.5rem; border-radius: 20px; border: 2px dashed #ffe0e6; margin-bottom: 2rem;">
-                <div style="font-weight: 800; color: #802030; text-transform: uppercase; font-size: 0.75rem; margin-bottom: 1rem; letter-spacing: 0.05em;">Customer Discount</div>
-                <div style="display: flex; gap: 1.5rem;">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; flex: 1;">
-                        <input type="radio" name="discount_type" value="none" checked onchange="updateDiscount()">
-                        <span style="font-weight: 600; color: #1a1a1a;">No Discount</span>
+            <div class="mb-4">
+                <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #adb5bd; margin-bottom: 0.75rem; display: block; letter-spacing: 0.05em;">Special Discounts</span>
+                <div class="discount-options">
+                    <label class="discount-option">
+                        <input type="radio" name="discount_type" value="none" checked onchange="calcTotal()">
+                        <div class="discount-box">
+                            <i class="fas fa-percentage"></i>
+                            <span>None</span>
+                        </div>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; flex: 1;">
-                        <input type="radio" name="discount_type" value="pwd" onchange="updateDiscount()">
-                        <span style="font-weight: 600; color: #1a1a1a;">PWD (12%)</span>
+                    <label class="discount-option">
+                        <input type="radio" name="discount_type" value="pwd" onchange="calcTotal()">
+                        <div class="discount-box">
+                            <i class="fas fa-wheelchair"></i>
+                            <span>PWD</span>
+                        </div>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; flex: 1;">
-                        <input type="radio" name="discount_type" value="senior_citizen" onchange="updateDiscount()">
-                        <span style="font-weight: 600; color: #1a1a1a;">Senior Citizen (20%)</span>
+                    <label class="discount-option">
+                        <input type="radio" name="discount_type" value="senior_citizen" onchange="calcTotal()">
+                        <div class="discount-box">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Senior</span>
+                        </div>
                     </label>
                 </div>
             </div>
 
-            <div style="background: #f8f9fa; padding: 2rem; border-radius: 24px; margin-bottom: 2.5rem;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                    <span style="font-weight: 800; color: #adb5bd; text-transform: uppercase; font-size: 0.75rem;">Total Settlement</span>
-                    <strong id="modalTotalDue" style="font-size: 1.5rem; color: #1a1a1a;">₱0.00</strong>
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="arch-field-label">Cash Received</label>
-                    <input type="number" id="cashReceived" class="arch-select-custom" style="padding: 1.25rem; font-size: 1.5rem; font-weight: 800; color: var(--color-editorial);" placeholder="0.00">
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 1.25rem;">
-                    <span style="font-weight: 800; color: #adb5bd; text-transform: uppercase; font-size: 0.75rem; align-self: center;">Change Due</span>
-                    <strong id="cashChange" style="color: #3c5e5e;">₱0.00</strong>
-                </div>
-            </div>
-
-            <input type="hidden" name="branch" id="finalBranch">
-
-            <button type="button" onclick="submitPOSSale()" class="checkout-primary-btn">
+            <button type="button" onclick="finalizeSale()" class="pos-btn-primary" style="margin-top: 0; padding: 1.1rem; font-size: 0.9rem;">
                 Confirm Sale
             </button>
         </form>
@@ -442,234 +648,163 @@
 </div>
 
 <script>
-let posCart = [];
+let cart = [];
 
-function posAddToCart(product) {
-    const existing = posCart.find(item => item.id === product.id);
-    if (existing) {
-        existing.qty++;
+function addToCart(product) {
+    const item = cart.find(i => i.id === product.id);
+    if (item) {
+        item.qty++;
     } else {
-        posCart.push({ ...product, qty: 1 });
+        cart.push({ ...product, qty: 1 });
     }
-    renderPosCart();
-    
-    // Feedback
-    const card = document.querySelector(`.arch-product-card[data-id="${product.id}"]`);
-    card.classList.add('pulse');
-    setTimeout(() => card.classList.remove('pulse'), 200);
+    renderCart();
 }
 
-function posUpdateQty(id, delta) {
-    const item = posCart.find(i => i.id === id);
+function updateQty(id, delta) {
+    const item = cart.find(i => i.id === id);
     if (item) {
         item.qty += delta;
-        if (item.qty <= 0) {
-            posCart = posCart.filter(i => i.id !== id);
-        }
-        renderPosCart();
+        if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+        renderCart();
     }
 }
 
-function renderPosCart() {
-    const list = document.getElementById('posCartList');
-    const itemsCountEl = document.getElementById('posItemsCount');
-    const totalAmountEl = document.getElementById('posTotalAmount');
-    
-    if (posCart.length === 0) {
-        list.innerHTML = `
-            <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #adb5bd; gap: 1.5rem; opacity: 0.5;">
-                <i class="fas fa-shopping-basket" style="font-size: 5rem;"></i>
-                <p style="font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.15em;">Awaiting Selections</p>
-            </div>
-        `;
-        itemsCountEl.textContent = '0 Items';
-        totalAmountEl.textContent = '₱0.00';
+function renderCart() {
+    const list = document.getElementById('cartItemsList');
+    const subtotalEl = document.getElementById('subtotalDisplay');
+    const countEl = document.getElementById('itemsCountDisplay');
+    const totalEl = document.getElementById('totalDisplay');
+
+    if (cart.length === 0) {
+        list.innerHTML = `<div class="empty-cart-state"><i class="fas fa-shopping-bag"></i><p>Bag is empty</p></div>`;
+        subtotalEl.textContent = '₱0.00';
+        countEl.textContent = '0 Units';
+        totalEl.textContent = '₱0.00';
         return;
     }
 
-    let total = 0;
+    let subtotal = 0;
     let count = 0;
 
-    list.innerHTML = posCart.map(item => {
-        const itemTotal = item.price * item.qty;
-        total += itemTotal;
+    list.innerHTML = cart.map(item => {
+        subtotal += item.price * item.qty;
         count += item.qty;
-        
         return `
-            <div class="arch-cart-item">
-                <div style="width: 45px; height: 45px; background: white; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid #eee;">
-                    ${item.image ? `<img src="${item.image}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#eee;"><i class="fas fa-image"></i></div>`}
+            <div class="cart-item-row">
+                <div class="cart-item-thumb">
+                    ${item.image ? `<img src="${item.image}">` : `<i class="fas fa-image" style="color:#eee"></i>`}
                 </div>
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-size: 0.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name} ${item.size ? '('+item.size+')' : ''}</div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div class="item-qty-control">
-                            <button class="qty-step-btn" onclick="posUpdateQty(${item.id}, -1)">&minus;</button>
-                            <span style="font-size: 0.75rem; font-weight: 800; min-width: 15px; text-align: center;">${item.qty}</span>
-                            <button class="qty-step-btn" onclick="posUpdateQty(${item.id}, 1)">&plus;</button>
-                        </div>
-                        <span style="font-size: 0.7rem; font-weight: 600; color: #adb5bd;">@ ₱${Number(item.price).toLocaleString()}</span>
+                <div class="cart-item-main">
+                    <div class="cart-item-title">${item.name} ${item.size ? '('+item.size+')' : ''}</div>
+                    <div class="qty-widget">
+                        <button class="qty-btn" onclick="updateQty(${item.id}, -1)">&minus;</button>
+                        <span style="font-size: 0.8rem; font-weight: 800; min-width: 15px; text-align: center;">${item.qty}</span>
+                        <button class="qty-btn" onclick="updateQty(${item.id}, 1)">&plus;</button>
                     </div>
                 </div>
-                <div style="font-weight: 800; color: var(--color-editorial); font-size: 0.9rem;">
-                    ₱${Number(itemTotal).toLocaleString()}
+                <div style="font-weight: 900; color: var(--pos-accent); font-size: 1rem;">
+                    ₱${(item.price * item.qty).toLocaleString()}
                 </div>
             </div>
         `;
     }).join('');
 
-    itemsCountEl.textContent = count + ' Items';
-    const subtotal = total;
-    const discountType = document.querySelector('input[name="discount_type"]:checked')?.value || 'none';
-    let discountAmount = 0;
+    subtotalEl.textContent = '₱' + subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    countEl.textContent = count + ' Units';
+    totalEl.textContent = '₱' + subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
     
-    if (discountType === 'pwd') {
-        discountAmount = subtotal * 0.12;
-    } else if (discountType === 'senior_citizen') {
-        discountAmount = subtotal * 0.20;
+    window.subtotal = subtotal;
+}
+
+function calcTotal() {
+    const discountType = document.querySelector('input[name="discount_type"]:checked').value;
+    let discount = 0;
+    if (discountType === 'pwd') discount = window.subtotal * 0.12;
+    if (discountType === 'senior_citizen') discount = window.subtotal * 0.20;
+    
+    const finalTotal = window.subtotal - discount;
+    document.getElementById('checkoutTotal').textContent = '₱' + finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    window.finalTotal = finalTotal;
+    window.discountAmount = discount;
+    
+    calcChange();
+}
+
+function calcChange() {
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    const change = Math.max(0, received - window.finalTotal);
+    document.getElementById('changeDue').textContent = '₱' + change.toLocaleString(undefined, { minimumFractionDigits: 2 });
+}
+
+function openCheckout() {
+    if (cart.length === 0) return;
+    document.getElementById('checkoutModal').style.display = 'flex';
+    calcTotal();
+    document.getElementById('amountReceived').focus();
+}
+
+function closeCheckout() {
+    document.getElementById('checkoutModal').style.display = 'none';
+}
+
+function togglePaymentFields() {
+    const method = document.getElementById('paymentMethod').value;
+    const cashFields = document.getElementById('cashFields');
+    if (method === 'gcash') {
+        cashFields.style.display = 'none';
+        document.getElementById('amountReceived').value = window.finalTotal;
+    } else {
+        cashFields.style.display = 'block';
+        document.getElementById('amountReceived').value = '';
     }
-    
-    const finalTotal = subtotal - discountAmount;
-    
-    totalAmountEl.textContent = '₱' + subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    document.getElementById('modalTotalDue').textContent = '₱' + finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    
-    // Store discount info for form submission
-    window.discountInfo = { type: discountType, amount: discountAmount, subtotal: subtotal, finalTotal: finalTotal };
-    
-    // Update change calculation if modal is open
-    if (document.getElementById('paymentModal').style.display === 'flex') {
-        updateChangeCalculation();
-    }
 }
 
-function posClearCart() {
-    if (posCart.length > 0 && confirm('Clear this V\'S Fashion order?')) {
-        posCart = [];
-        renderPosCart();
-    }
-}
-
-function updateDiscount() {
-    renderPosCart();
-}
-
-// Search
-document.getElementById('posProductSearch').addEventListener('input', posFilter);
-document.querySelectorAll('.arch-category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelector('.arch-category-btn.active').classList.remove('active');
-        btn.classList.add('active');
-        posFilter();
-    });
-});
-
-function posFilter() {
-    const search = document.getElementById('posProductSearch').value.toLowerCase();
-    const category = document.querySelector('.arch-category-btn.active').dataset.category;
+function finalizeSale() {
+    const items = cart.map(i => ({ product_id: i.id, quantity: i.qty, unit_price: i.price }));
+    document.getElementById('saleItems').value = JSON.stringify(items);
     
-    document.querySelectorAll('.arch-product-card').forEach(card => {
-        const name = (card.dataset.name + " " + (card.dataset.size || "")).toLowerCase();
-        const cat = card.dataset.category;
-        const matchesSearch = name.includes(search);
-        const matchesCat = category === 'all' || cat === category;
-        
-        card.style.display = (matchesSearch && matchesCat) ? 'flex' : 'none';
-    });
-}
-
-function openPaymentModal() {
-    if (posCart.length === 0) return alert('Please add items to cart.');
-    const branch = document.getElementById('posBranch').value;
-    if (!branch) return alert('Please select a branch location.');
-
-    const subtotal = posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const discountType = document.querySelector('input[name="discount_type"]:checked')?.value || 'none';
-    let discountAmount = 0;
+    // Add discount amount to form
+    const form = document.getElementById('posSaleForm');
+    const discountInput = document.createElement('input');
+    discountInput.type = 'hidden';
+    discountInput.name = 'discount_amount';
+    discountInput.value = window.discountAmount;
+    form.appendChild(discountInput);
     
-    if (discountType === 'pwd') {
-        discountAmount = subtotal * 0.12;
-    } else if (discountType === 'senior_citizen') {
-        discountAmount = subtotal * 0.20;
-    }
-    
-    const finalTotal = subtotal - discountAmount;
-    window.discountInfo = { type: discountType, amount: discountAmount, subtotal: subtotal, finalTotal: finalTotal };
-    
-    document.getElementById('modalTotalDue').textContent = '₱' + finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
-    document.getElementById('paymentModal').style.display = 'flex';
-    document.getElementById('cashReceived').value = '';
-    document.getElementById('cashChange').textContent = '₱0.00';
-    document.getElementById('cashReceived').focus();
-}
-
-function closePaymentModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-}
-
-function updateChangeCalculation() {
-    const total = window.discountInfo?.finalTotal || posCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const received = parseFloat(document.getElementById('cashReceived').value) || 0;
-    const change = Math.max(0, received - total);
-    document.getElementById('cashChange').textContent = '₱' + change.toLocaleString(undefined, { minimumFractionDigits: 2 });
-}
-
-document.getElementById('cashReceived').addEventListener('input', updateChangeCalculation);
-
-function submitPOSSale() {
-    if (posCart.length === 0) {
-        alert('Cart is empty. Please add items.');
-        return;
-    }
-
-    const items = posCart.map(item => ({
-        product_id: item.id,
-        quantity: item.qty,
-        unit_price: item.price
-    }));
-    
-    document.getElementById('hiddenItems').value = JSON.stringify(items);
-    document.getElementById('finalBranch').value = document.getElementById('posBranch').value;
-    
-    // Get discount information
-    const discountType = document.querySelector('input[name="discount_type"]:checked')?.value || 'none';
-    const discountAmount = window.discountInfo?.amount || 0;
-    
-    // Update hidden inputs with current values
-    const form = document.getElementById('finalSaleForm');
-    
-    // Remove old discount inputs if they exist
-    const oldDiscountTypeInputs = form.querySelectorAll('input[name="discount_type"][type="hidden"]');
-    const oldDiscountAmountInputs = form.querySelectorAll('input[name="discount_amount"][type="hidden"]');
-    oldDiscountTypeInputs.forEach(input => input.remove());
-    oldDiscountAmountInputs.forEach(input => input.remove());
-    
-    // Create new hidden inputs for discount data
-    const discountTypeInput = document.createElement('input');
-    discountTypeInput.type = 'hidden';
-    discountTypeInput.name = 'discount_type';
-    discountTypeInput.value = discountType;
-    form.appendChild(discountTypeInput);
-    
-    const discountAmountInput = document.createElement('input');
-    discountAmountInput.type = 'hidden';
-    discountAmountInput.name = 'discount_amount';
-    discountAmountInput.value = discountAmount;
-    form.appendChild(discountAmountInput);
-    
-    const cashReceivedInput = document.createElement('input');
-    cashReceivedInput.type = 'hidden';
-    cashReceivedInput.name = 'cash_received';
-    cashReceivedInput.value = parseFloat(document.getElementById('cashReceived').value) || 0;
-    form.appendChild(cashReceivedInput);
+    const receivedInput = document.createElement('input');
+    receivedInput.type = 'hidden';
+    receivedInput.name = 'cash_received';
+    receivedInput.value = document.getElementById('amountReceived').value || window.finalTotal;
+    form.appendChild(receivedInput);
     
     form.submit();
 }
 
-window.onclick = function(event) {
-    if (event.target == document.getElementById('paymentModal')) {
-        closePaymentModal();
-    }
+document.getElementById('amountReceived').addEventListener('input', calcChange);
+
+// Filter logic
+document.getElementById('posSearch').addEventListener('input', function(e) {
+    const search = e.target.value.toLowerCase();
+    const cat = document.querySelector('.filter-pill.active').dataset.category;
+    filterProducts(search, cat);
+});
+
+document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+        document.querySelector('.filter-pill.active').classList.remove('active');
+        this.classList.add('active');
+        const search = document.getElementById('posSearch').value.toLowerCase();
+        filterProducts(search, this.dataset.category);
+    });
+});
+
+function filterProducts(search, category) {
+    document.querySelectorAll('.pos-product-card').forEach(card => {
+        const name = (card.dataset.name + (card.dataset.size || '')).toLowerCase();
+        const matchesSearch = name.includes(search);
+        const matchesCat = category === 'all' || card.dataset.category === category;
+        card.style.display = (matchesSearch && matchesCat) ? 'flex' : 'none';
+    });
 }
 </script>
 @endsection
