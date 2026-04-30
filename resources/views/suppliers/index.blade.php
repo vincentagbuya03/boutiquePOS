@@ -59,8 +59,8 @@
                     <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn-mini" title="Delete" onclick="return confirm('Are you sure you want to delete this supplier?')">
-                            <i class="fas fa-trash"></i>
+                        <button type="submit" class="action-btn-mini" title="Archive" onclick="return confirm('Archive this supplier? Existing batches will keep their supplier history.')">
+                            <i class="fas fa-archive"></i>
                         </button>
                     </form>
                 </td>

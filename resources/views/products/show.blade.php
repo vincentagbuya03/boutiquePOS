@@ -66,7 +66,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="button" class="btn btn-danger" onclick="showDeleteModal(document.getElementById('deleteProductForm'))">
-                            <i class="fas fa-trash"></i> Delete
+                            <i class="fas fa-archive"></i> Archive
                         </button>
                     </form>
                 </div>

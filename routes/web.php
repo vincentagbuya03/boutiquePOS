@@ -53,8 +53,8 @@ Route::middleware('auth')->group(function () {
     Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
     Route::get('reports/profit', [ReportController::class, 'profitAnalysis'])->name('reports.profit');
     
-    Route::resource('users', UserController::class);
-    Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
+    Route::resource('users', UserController::class)->withTrashed(['show', 'edit', 'update']);
+    Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->withTrashed()->name('users.force-delete');
 
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::patch('settings', [SettingsController::class, 'update'])->name('settings.update');

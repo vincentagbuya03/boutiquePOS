@@ -16,7 +16,7 @@ class UserController extends Controller
         $user = auth()->user();
         
         if ($user->isOwner() || $user->isAdmin()) {
-            $users = User::orderBy('name')->get();
+            $users = User::withTrashed()->orderBy('name')->get();
         } else {
             abort(403, 'Unauthorized access');
         }
@@ -143,23 +143,23 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from storage (soft delete).
+     * Archive the specified user from storage.
      */
     public function destroy(User $user)
     {
-        // Cannot delete yourself
+        // Cannot archive yourself
         if ($user->id === auth()->id()) {
-            return back()->withErrors(['error' => 'You cannot delete your own account.']);
+            return back()->withErrors(['error' => 'You cannot archive your own account.']);
         }
 
-        // Owner and Admin can delete users
+        // Owner and Admin can archive users
         if (!auth()->user()->isOwner() && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        return redirect()->route('users.index')->with('success', 'User archived successfully.');
     }
 
     /**

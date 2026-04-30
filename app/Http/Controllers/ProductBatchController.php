@@ -16,7 +16,10 @@ class ProductBatchController extends Controller
      */
     public function index()
     {
-        $batches = ProductBatch::with(['product', 'supplier'])->orderBy('date_received', 'desc')->paginate(15);
+        $batches = ProductBatch::with(['product', 'supplier'])
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
+            ->orderBy('date_received', 'desc')
+            ->paginate(15);
         return view('batches.index', compact('batches'));
     }
 
@@ -25,8 +28,8 @@ class ProductBatchController extends Controller
      */
     public function create()
     {
-        $products = Product::all();
-        $suppliers = Supplier::all();
+        $products = Product::orderBy('name')->get();
+        $suppliers = Supplier::orderBy('name')->get();
         
         // Generate automatic batch number
         $nextId = ProductBatch::max('id') + 1;
@@ -69,12 +72,12 @@ class ProductBatchController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Archive the specified resource.
      */
     public function destroy(ProductBatch $batch)
     {
         DB::transaction(function () use ($batch) {
-            // Decrement inventory when batch is removed (optional logic, but usually safer)
+            // Decrement inventory when the batch is archived so it is no longer sellable.
             $inventory = Inventory::where('product_id', $batch->product_id)->first();
             if ($inventory) {
                 $inventory->decrement('quantity', min($inventory->quantity, $batch->quantity));
@@ -82,6 +85,6 @@ class ProductBatchController extends Controller
             $batch->delete();
         });
 
-        return redirect()->route('batches.index')->with('success', 'Batch removed and inventory adjusted successfully');
+        return redirect()->route('batches.index')->with('success', 'Batch archived and inventory adjusted successfully');
     }
 }

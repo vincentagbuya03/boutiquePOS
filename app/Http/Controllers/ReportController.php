@@ -53,7 +53,9 @@ class ReportController extends Controller
         }
 
         // Inventory
-        $inventories = Inventory::with('product.firstAvailableBatch')->get();
+        $inventories = Inventory::with('product.firstAvailableBatch')
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
+            ->get();
         $inventoryValue = $inventories->sum(function ($item) {
             return $item->quantity * ($item->product->firstAvailableBatch->selling_price ?? 0);
         });
@@ -105,11 +107,14 @@ class ReportController extends Controller
         
         // We query individual batches that have quantity > 0
         $query = ProductBatch::with(['product.category', 'supplier'])
+            ->whereHas('product', fn ($productQuery) => $productQuery->whereNull('deleted_at'))
             ->where('quantity', '>', 0);
 
         if ($request->get('low_stock')) {
             // Low stock check on the aggregate product level
-            $lowStockProductIds = Inventory::whereRaw('quantity <= reorder_level')->pluck('product_id');
+            $lowStockProductIds = Inventory::whereRaw('quantity <= reorder_level')
+                ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
+                ->pluck('product_id');
             $query->whereIn('product_id', $lowStockProductIds);
         }
 
@@ -118,7 +123,9 @@ class ReportController extends Controller
         $totalValue = $batches->sum(fn($b) => $b->quantity * $b->selling_price);
 
         // Still count low stock products for the indicator
-        $lowStockCount = Inventory::whereRaw('quantity <= reorder_level')->count();
+        $lowStockCount = Inventory::whereRaw('quantity <= reorder_level')
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
+            ->count();
 
         return view('reports.inventory', compact('batches', 'totalValue', 'lowStockCount'));
     }

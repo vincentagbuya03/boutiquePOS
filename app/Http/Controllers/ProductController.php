@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
         $products = Product::with(['category', 'firstAvailableBatch'])->paginate(15);
         
         return view('products.index', compact('products', 'categories'));
@@ -27,7 +27,7 @@ class ProductController extends Controller
             throw new AuthorizationException('You do not have permission to create products');
         }
 
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
         return view('products.create', compact('categories'));
     }
 
@@ -94,7 +94,7 @@ class ProductController extends Controller
             throw new AuthorizationException('You do not have permission to edit products');
         }
 
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
         return view('products.edit', compact('product', 'categories'));
     }
 
@@ -141,16 +141,16 @@ class ProductController extends Controller
     }
 
     /**
-     * Delete a product.
+     * Archive a product.
      */
     public function destroy(Product $product)
     {
-        // Only Staff and Owner can delete products
+        // Only Staff and Owner can archive products
         if (!auth()->user()->canManageProducts()) {
-            throw new AuthorizationException('You do not have permission to delete products');
+            throw new AuthorizationException('You do not have permission to archive products');
         }
 
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+        return redirect()->route('products.index')->with('success', 'Product archived successfully');
     }
 }

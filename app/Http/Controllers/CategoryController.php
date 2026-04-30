@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -12,7 +13,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::withCount('products')->orderBy('name')->get();
         return view('categories.index', compact('categories'));
     }
 
@@ -30,7 +31,12 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories',
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('categories')->whereNull('deleted_at'),
+            ],
             'description' => 'nullable|string|max:255',
         ]);
 
@@ -53,7 +59,12 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name,' . $category->id,
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('categories')->ignore($category->id)->whereNull('deleted_at'),
+            ],
             'description' => 'nullable|string|max:255',
         ]);
 
@@ -63,15 +74,11 @@ class CategoryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Archive the specified resource.
      */
     public function destroy(Category $category)
     {
-        if ($category->products()->count() > 0) {
-            return back()->with('error', 'Cannot delete category that has products');
-        }
-
         $category->delete();
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully');
+        return redirect()->route('categories.index')->with('success', 'Category archived successfully');
     }
 }

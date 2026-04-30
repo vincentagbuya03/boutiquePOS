@@ -65,8 +65,8 @@
                     <form action="{{ route('batches.destroy', $batch) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn-mini" title="Delete" onclick="return confirm('Are you sure you want to remove this batch? Inventory will be adjusted.')">
-                            <i class="fas fa-trash"></i>
+                        <button type="submit" class="action-btn-mini" title="Archive" onclick="return confirm('Archive this batch? Inventory will be adjusted.')">
+                            <i class="fas fa-archive"></i>
                         </button>
                     </form>
                 </td>

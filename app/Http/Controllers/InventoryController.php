@@ -15,6 +15,7 @@ class InventoryController extends Controller
     public function index()
     {
         $inventories = Inventory::with('product.category')
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->orderBy('product_id')
             ->paginate(15);
         
@@ -108,6 +109,7 @@ class InventoryController extends Controller
     public function lowStock()
     {
         $lowStockItems = Inventory::whereRaw('quantity <= reorder_level')
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->with('product.category')
             ->get();
         

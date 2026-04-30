@@ -49,7 +49,7 @@
             <tr>
                 <td>{{ $category->name }}</td>
                 <td style="color: #999;">{{ $category->description ?? 'No description' }}</td>
-                <td>{{ $category->products()->count() }}</td>
+                <td>{{ $category->products_count }}</td>
                 <td style="text-align: right;">
                     <a href="{{ route('categories.edit', $category) }}" class="action-btn-mini" title="Edit">
                         <i class="fas fa-pen-nib"></i>
@@ -57,8 +57,8 @@
                     <form action="{{ route('categories.destroy', $category) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn-mini" title="Delete" onclick="return confirm('Are you sure you want to delete this category?')">
-                            <i class="fas fa-trash"></i>
+                        <button type="submit" class="action-btn-mini" title="Archive" onclick="return confirm('Archive this category? Products that already use it will keep their category history.')">
+                            <i class="fas fa-archive"></i>
                         </button>
                     </form>
                 </td>

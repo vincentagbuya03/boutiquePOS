@@ -12,7 +12,7 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        $suppliers = Supplier::all();
+        $suppliers = Supplier::orderBy('name')->get();
         return view('suppliers.index', compact('suppliers'));
     }
 
@@ -69,15 +69,11 @@ class SupplierController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Archive the specified resource.
      */
     public function destroy(Supplier $supplier)
     {
-        if ($supplier->batches()->count() > 0) {
-            return back()->with('error', 'Cannot delete supplier that has associated product batches');
-        }
-
         $supplier->delete();
-        return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully');
+        return redirect()->route('suppliers.index')->with('success', 'Supplier archived successfully');
     }
 }

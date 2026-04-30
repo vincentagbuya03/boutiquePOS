@@ -126,7 +126,7 @@
                         <dd class="col-sm-7"><small>{{ $user->updated_at->format('M d, Y g:i A') }}</small></dd>
 
                         @if($user->deleted_at)
-                            <dt class="col-sm-5">Deactivated:</dt>
+                            <dt class="col-sm-5">Archived:</dt>
                             <dd class="col-sm-7"><small class="text-danger">{{ $user->deleted_at->format('M d, Y g:i A') }}</small></dd>
                         @endif
                     </dl>
@@ -144,20 +144,20 @@
                 </div>
             </div>
 
-            <!-- Danger Zone -->
-            @if((auth()->user()->isOwner() || auth()->user()->isAdmin()) && auth()->user()->id !== $user->id)
+            <!-- Archive Zone -->
+            @if(!$user->trashed() && (auth()->user()->isOwner() || auth()->user()->isAdmin()) && auth()->user()->id !== $user->id)
                 <div class="card shadow mt-3 border-danger">
                     <div class="card-header bg-danger text-white">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h5>
+                        <h5 class="mb-0"><i class="fas fa-archive"></i> Archive User</h5>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted"><small>Deactivate this user account</small></p>
+                        <p class="text-muted"><small>Archive this user account</small></p>
                         <form action="{{ route('users.destroy', $user) }}" method="POST" 
-                               onsubmit="return confirm('Are you sure you want to deactivate this user? They will not be able to log in.');">
+                               onsubmit="return confirm('Archive this user? They will not be able to log in.');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm w-100">
-                                <i class="fas fa-trash"></i> Deactivate User
+                                <i class="fas fa-archive"></i> Archive User
                             </button>
                         </form>
                     </div>

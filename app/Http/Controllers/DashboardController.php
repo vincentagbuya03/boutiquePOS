@@ -58,6 +58,7 @@ class DashboardController extends Controller
 
         // Low stock items
         $lowStockItems = Inventory::where('quantity', '<=', DB::raw('reorder_level'))
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->with('product')
             ->limit(10)
             ->get();
@@ -99,6 +100,7 @@ class DashboardController extends Controller
 
         // Low stock items
         $lowStockItems = Inventory::where('quantity', '<=', DB::raw('reorder_level'))
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->with('product')
             ->get();
 
@@ -132,12 +134,14 @@ class DashboardController extends Controller
     private function staffDashboard()
     {
         $totalProducts = Product::count();
-        $lowStockItems = Inventory::where('quantity', '<=', DB::raw('reorder_level'))->count();
-        $outOfStock = Inventory::where('quantity', 0)->count();
-        $totalStock = Inventory::sum('quantity');
+        $activeInventory = Inventory::whereHas('product', fn ($query) => $query->whereNull('deleted_at'));
+        $lowStockItems = (clone $activeInventory)->where('quantity', '<=', DB::raw('reorder_level'))->count();
+        $outOfStock = (clone $activeInventory)->where('quantity', 0)->count();
+        $totalStock = (clone $activeInventory)->sum('quantity');
 
         // Low stock products
         $lowStockProducts = Inventory::where('quantity', '<=', DB::raw('reorder_level'))
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->with('product')
             ->orderBy('quantity')
             ->limit(10)
@@ -145,6 +149,7 @@ class DashboardController extends Controller
 
         // Recent inventory updates
         $recentUpdates = Inventory::with('product')
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->orderBy('updated_at', 'desc')
             ->limit(5)
             ->get();
@@ -173,6 +178,7 @@ class DashboardController extends Controller
 
         // Get available products
         $products = Inventory::with('product.firstAvailableBatch')
+            ->whereHas('product', fn ($query) => $query->whereNull('deleted_at'))
             ->limit(10)
             ->get();
 

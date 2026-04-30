@@ -92,10 +92,10 @@
                             <a href="{{ route('users.edit', $user) }}" class="action-btn-mini"><i class="fas fa-pen-nib"></i></a>
                         @endif
 
-                        @if((auth()->user()->isOwner() || auth()->user()->isAdmin()) && auth()->user()->id !== $user->id)
-                            <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to deactivate this user?');">
+                        @if(!$user->trashed() && (auth()->user()->isOwner() || auth()->user()->isAdmin()) && auth()->user()->id !== $user->id)
+                            <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Archive this user? They will not be able to log in.');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="action-btn-mini"><i class="fas fa-trash-alt"></i></button>
+                                <button type="submit" class="action-btn-mini" title="Archive"><i class="fas fa-archive"></i></button>
                             </form>
                         @endif
                     </div>

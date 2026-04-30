@@ -104,7 +104,7 @@
                         <dd class="col-sm-6"><small>{{ $user->updated_at->format('M d, Y') }}</small></dd>
 
                         @if($user->deleted_at)
-                            <dt class="col-sm-6">Deactivated:</dt>
+                            <dt class="col-sm-6">Archived:</dt>
                             <dd class="col-sm-6"><small class="text-danger">{{ $user->deleted_at->format('M d, Y') }}</small></dd>
                         @endif
                     </dl>
