@@ -152,11 +152,10 @@
                     </div>
                     <div class="card-body">
                         <p class="text-muted"><small>Archive this user account</small></p>
-                        <form action="{{ route('users.destroy', $user) }}" method="POST" 
-                               onsubmit="return confirm('Archive this user? They will not be able to log in.');">
+                        <form id="archiveEditUserForm{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                            <button type="button" class="btn btn-danger btn-sm w-100" onclick="showArchiveModal(document.getElementById('archiveEditUserForm{{ $user->id }}'), 'Archive User?', 'This user will not be able to log in until they are unarchived.')">
                                 <i class="fas fa-archive"></i> Archive User
                             </button>
                         </form>

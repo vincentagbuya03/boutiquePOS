@@ -486,6 +486,9 @@
                 <a href="{{ route('suppliers.index') }}" class="nav-link {{ request()->is('suppliers*') ? 'active' : '' }}">
                     <i class="fas fa-truck-loading"></i> Suppliers
                 </a>
+                <a href="{{ route('archives.index') }}" class="nav-link {{ request()->is('archives*') ? 'active' : '' }}">
+                    <i class="fas fa-box-archive"></i> Archive
+                </a>
                 @endif
 
                 {{-- Operations --}}

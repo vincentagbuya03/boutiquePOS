@@ -13,6 +13,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ProductBatchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ArchiveController;
 
 Route::redirect('/', '/login');
 
@@ -55,6 +56,8 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('users', UserController::class)->withTrashed(['show', 'edit', 'update']);
     Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->withTrashed()->name('users.force-delete');
+    Route::get('archives', [ArchiveController::class, 'index'])->name('archives.index');
+    Route::patch('archives/{type}/{id}/restore', [ArchiveController::class, 'restore'])->name('archives.restore');
 
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::patch('settings', [SettingsController::class, 'update'])->name('settings.update');

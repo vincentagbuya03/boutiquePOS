@@ -56,10 +56,10 @@
                     <a href="{{ route('suppliers.edit', $supplier) }}" class="action-btn-mini" title="Edit">
                         <i class="fas fa-pen-nib"></i>
                     </a>
-                    <form action="{{ route('suppliers.destroy', $supplier) }}" method="POST" style="display: inline;">
+                    <form id="archiveSupplierForm{{ $supplier->id }}" action="{{ route('suppliers.destroy', $supplier) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn-mini" title="Archive" onclick="return confirm('Archive this supplier? Existing batches will keep their supplier history.')">
+                        <button type="button" class="action-btn-mini" title="Archive" onclick="showArchiveModal(document.getElementById('archiveSupplierForm{{ $supplier->id }}'), 'Archive Supplier?', 'Existing batches will keep this supplier history.')">
                             <i class="fas fa-archive"></i>
                         </button>
                     </form>

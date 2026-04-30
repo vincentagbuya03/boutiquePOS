@@ -65,7 +65,7 @@
                     <form id="deleteProductForm" action="{{ route('products.destroy', $product) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="btn btn-danger" onclick="showDeleteModal(document.getElementById('deleteProductForm'))">
+                        <button type="button" class="btn btn-danger" onclick="showArchiveModal(document.getElementById('deleteProductForm'), 'Archive Product?', 'This product will be hidden from active selling and inventory lists.')">
                             <i class="fas fa-archive"></i> Archive
                         </button>
                     </form>

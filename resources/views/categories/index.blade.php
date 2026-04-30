@@ -54,10 +54,10 @@
                     <a href="{{ route('categories.edit', $category) }}" class="action-btn-mini" title="Edit">
                         <i class="fas fa-pen-nib"></i>
                     </a>
-                    <form action="{{ route('categories.destroy', $category) }}" method="POST" style="display: inline;">
+                    <form id="archiveCategoryForm{{ $category->id }}" action="{{ route('categories.destroy', $category) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn-mini" title="Archive" onclick="return confirm('Archive this category? Products that already use it will keep their category history.')">
+                        <button type="button" class="action-btn-mini" title="Archive" onclick="showArchiveModal(document.getElementById('archiveCategoryForm{{ $category->id }}'), 'Archive Category?', 'Products that already use this category will keep their category history.')">
                             <i class="fas fa-archive"></i>
                         </button>
                     </form>

@@ -93,9 +93,9 @@
                         @endif
 
                         @if(!$user->trashed() && (auth()->user()->isOwner() || auth()->user()->isAdmin()) && auth()->user()->id !== $user->id)
-                            <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Archive this user? They will not be able to log in.');">
+                            <form id="archiveUserForm{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="action-btn-mini" title="Archive"><i class="fas fa-archive"></i></button>
+                                <button type="button" class="action-btn-mini" title="Archive" onclick="showArchiveModal(document.getElementById('archiveUserForm{{ $user->id }}'), 'Archive User?', 'This user will not be able to log in until they are unarchived.')"><i class="fas fa-archive"></i></button>
                             </form>
                         @endif
                     </div>

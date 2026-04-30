@@ -62,10 +62,10 @@
                 <td>₱{{ number_format($batch->selling_price, 2) }}</td>
                 <td>{{ $batch->date_received->format('M d, Y') }}</td>
                 <td style="text-align: right;">
-                    <form action="{{ route('batches.destroy', $batch) }}" method="POST" style="display: inline;">
+                    <form id="archiveBatchForm{{ $batch->id }}" action="{{ route('batches.destroy', $batch) }}" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn-mini" title="Archive" onclick="return confirm('Archive this batch? Inventory will be adjusted.')">
+                        <button type="button" class="action-btn-mini" title="Archive" onclick="showArchiveModal(document.getElementById('archiveBatchForm{{ $batch->id }}'), 'Archive Batch?', 'Inventory will be adjusted so this batch is no longer sellable.')">
                             <i class="fas fa-archive"></i>
                         </button>
                     </form>
