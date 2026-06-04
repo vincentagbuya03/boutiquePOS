@@ -9,6 +9,7 @@ use App\Models\ProductBatch;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -38,7 +39,10 @@ class ArchiveController extends Controller
             ->get();
 
         $archivedUsers = collect();
-        if (auth()->user()->isOwner() || auth()->user()->isAdmin()) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->isOwner() || $user->isAdmin()) {
             $archivedUsers = User::onlyTrashed()
                 ->latest('deleted_at')
                 ->get();
@@ -81,18 +85,24 @@ class ArchiveController extends Controller
 
     private function authorizeArchiveAccess(): void
     {
-        if (! auth()->user()->isOwner() && ! auth()->user()->isAdmin() && ! auth()->user()->isStaff()) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (! $user->isOwner() && ! $user->isAdmin() && ! $user->isStaff()) {
             abort(403, 'You do not have permission to view archived records.');
         }
     }
 
     private function authorizeRestoreType(string $type): void
     {
-        if ($type === 'users' && ! auth()->user()->isOwner() && ! auth()->user()->isAdmin()) {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($type === 'users' && ! $user->isOwner() && ! $user->isAdmin()) {
             abort(403, 'You do not have permission to restore archived users.');
         }
 
-        if ($type !== 'users' && ! auth()->user()->isOwner() && ! auth()->user()->isAdmin() && ! auth()->user()->isStaff()) {
+        if ($type !== 'users' && ! $user->isOwner() && ! $user->isAdmin() && ! $user->isStaff()) {
             abort(403, 'You do not have permission to restore archived inventory records.');
         }
     }

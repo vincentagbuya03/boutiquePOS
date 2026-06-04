@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Auth\AuthorizationException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
+
 class ProductController extends Controller
 {
     public function index()
@@ -22,8 +24,11 @@ class ProductController extends Controller
      */
     public function create()
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can create products
-        if (!Auth::check() || !Auth::user()->canManageProducts()) {
+        if (! Auth::check() || ! $user->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to create products');
         }
 
@@ -36,8 +41,11 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can store products
-        if (!Auth::check() || !Auth::user()->canManageProducts()) {
+        if (! Auth::check() || ! $user->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to create products');
         }
 
@@ -89,8 +97,11 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can edit products
-        if (!Auth::check() || !Auth::user()->canManageProducts()) {
+        if (! Auth::check() || ! $user->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to edit products');
         }
 
@@ -103,8 +114,11 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can update products
-        if (!Auth::check() || !Auth::user()->canManageProducts()) {
+        if (! Auth::check() || ! $user->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to update products');
         }
 
@@ -145,8 +159,11 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can archive products
-        if (!Auth::check() || !Auth::user()->canManageProducts()) {
+        if (! Auth::check() || ! $user->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to archive products');
         }
 

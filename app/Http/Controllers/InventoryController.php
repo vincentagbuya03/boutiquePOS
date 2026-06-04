@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Inventory;
 use App\Models\ProductBatch;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
@@ -39,8 +41,11 @@ class InventoryController extends Controller
      */
     public function edit(Product $product)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can edit inventory
-        if (!auth()->user()->canManageInventory()) {
+        if (! $user->canManageInventory()) {
             throw new AuthorizationException('You do not have permission to edit inventory');
         }
 
@@ -59,8 +64,11 @@ class InventoryController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Staff and Owner can update inventory
-        if (!auth()->user()->canManageInventory()) {
+        if (! $user->canManageInventory()) {
             throw new AuthorizationException('You do not have permission to update inventory');
         }
 

@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\AuthorizationService;
 use App\Traits\Authorizable;
-use Illuminate\Auth\AuthorizationException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Example controller showing how to implement RBAC.
@@ -36,9 +36,12 @@ class ExampleRBACController extends Controller
 
         $users = User::query();
 
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // If not owner, filter by their branch
-        if (!auth()->user()->isOwner()) {
-            $users->where('branch', auth()->user()->branch);
+        if (!$currentUser->isOwner()) {
+            $users->where('branch', $currentUser->branch);
         }
 
         return response()->json([
@@ -54,6 +57,9 @@ class ExampleRBACController extends Controller
     {
         $this->authorizePermission('create', 'users');
 
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
@@ -63,7 +69,7 @@ class ExampleRBACController extends Controller
         ]);
 
         // Admins can only create users for their own branch
-        if (auth()->user()->isAdmin() && $validated['branch'] !== auth()->user()->branch) {
+        if ($currentUser->isAdmin() && $validated['branch'] !== $currentUser->branch) {
             throw new AuthorizationException('You can only create users for your own branch');
         }
 
@@ -103,7 +109,10 @@ class ExampleRBACController extends Controller
      */
     public function accessPOS(): JsonResponse
     {
-        if (!auth()->user()->canAccessPOS()) {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
+        if (!$currentUser->canAccessPOS()) {
             throw new AuthorizationException('You do not have access to the POS system');
         }
 
@@ -120,13 +129,17 @@ class ExampleRBACController extends Controller
     {
         $this->authorizePermission('create', 'sales');
 
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         $validated = $request->validate([
             'items' => 'required|array',
             'total' => 'required|numeric',
+            'branch' => 'nullable|string',
         ]);
 
         // Cashiers can only create sales for their branch
-        if (auth()->user()->isCashier() && $validated['branch'] !== auth()->user()->branch) {
+        if ($currentUser->isCashier() && ($validated['branch'] ?? null) !== $currentUser->branch) {
             throw new AuthorizationException('You can only create sales for your own branch');
         }
 

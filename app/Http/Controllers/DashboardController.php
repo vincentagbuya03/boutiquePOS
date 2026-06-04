@@ -7,6 +7,7 @@ use App\Models\OnlineOrder;
 use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -16,7 +17,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
 
         // Route to role-specific dashboard
         if ($user->isOwner()) {
@@ -175,7 +177,8 @@ class DashboardController extends Controller
      */
     private function cashierDashboard()
     {
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
 
         $todaySales = Sale::where('user_id', $user->id)->whereDate('date_sold', today())->sum('total_amount');
         $totalSalesCount = Sale::where('user_id', $user->id)->count();

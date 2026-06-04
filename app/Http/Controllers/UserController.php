@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -13,7 +14,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
         
         if ($user->isOwner() || $user->isAdmin()) {
             $users = User::withTrashed()->orderBy('name')->get();
@@ -29,8 +31,11 @@ class UserController extends Controller
      */
     public function create()
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Only Owner and Admin can create users
-        if (!auth()->user()->canManageUsers()) {
+        if (! $currentUser->canManageUsers()) {
             abort(403, 'Unauthorized action.');
         }
         
@@ -44,8 +49,11 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Only Owner and Admin can create users
-        if (!auth()->user()->canManageUsers()) {
+        if (! $currentUser->canManageUsers()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -62,7 +70,6 @@ class UserController extends Controller
         ]);
 
         // Owner can create any role, Admin can only create staff and cashier
-        $currentUser = auth()->user();
         if ($currentUser->isAdmin()) {
             if (!in_array($validated['role'], [User::ROLE_STAFF, User::ROLE_CASHIER])) {
                 return back()->withErrors(['role' => 'You can only create Staff and Cashier users.']);
@@ -81,8 +88,11 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Owner and Admin can view users
-        if (!auth()->user()->isOwner() && !auth()->user()->isAdmin()) {
+        if (! $currentUser->isOwner() && ! $currentUser->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -94,8 +104,11 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Owner and Admin can edit users
-        if (!auth()->user()->isOwner() && !auth()->user()->isAdmin()) {
+        if (! $currentUser->isOwner() && ! $currentUser->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -110,8 +123,11 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Owner and Admin can update users
-        if (!auth()->user()->isOwner() && !auth()->user()->isAdmin()) {
+        if (! $currentUser->isOwner() && ! $currentUser->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -127,7 +143,6 @@ class UserController extends Controller
         ]);
 
         // Owner can update any user role, Admin can only update staff/cashier
-        $currentUser = auth()->user();
         if ($currentUser->isAdmin()) {
             if (!in_array($validated['role'], [User::ROLE_STAFF, User::ROLE_CASHIER])) {
                 return back()->withErrors(['role' => 'You can only assign Staff and Cashier roles.']);
@@ -147,13 +162,16 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Cannot archive yourself
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return back()->withErrors(['error' => 'You cannot archive your own account.']);
         }
 
         // Owner and Admin can archive users
-        if (!auth()->user()->isOwner() && !auth()->user()->isAdmin()) {
+        if (! $currentUser->isOwner() && ! $currentUser->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -167,8 +185,11 @@ class UserController extends Controller
      */
     public function forceDelete(User $user)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         // Only Owner can permanently delete
-        if (!auth()->user()->isOwner()) {
+        if (! $currentUser->isOwner()) {
             abort(403, 'Only the Owner can permanently delete users.');
         }
 
@@ -182,7 +203,8 @@ class UserController extends Controller
      */
     protected function getAvailableRoles()
     {
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
 
         if ($user->isOwner()) {
             return [

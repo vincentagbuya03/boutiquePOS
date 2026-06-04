@@ -7,7 +7,9 @@ use App\Models\OnlineOrder;
 use App\Models\Inventory;
 use App\Models\ReturnAndRefund;
 use App\Models\ProductBatch;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -16,8 +18,11 @@ class ReportController extends Controller
      */
     public function index(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Admin and Owner can view reports
-        if (!auth()->user()->canViewReports()) {
+        if (! $user->canViewReports()) {
             abort(403, 'You do not have permission to view reports');
         }
 
@@ -98,12 +103,13 @@ class ReportController extends Controller
      */
     public function inventory(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Admin and Owner can view reports
-        if (!auth()->user()->canViewReports()) {
+        if (! $user->canViewReports()) {
             abort(403, 'You do not have permission to view reports');
         }
-
-        $user = auth()->user();
         
         // We query individual batches that have quantity > 0
         $query = ProductBatch::with(['product.category', 'supplier'])
@@ -136,12 +142,13 @@ class ReportController extends Controller
      */
     public function sales(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Admin and Owner can view reports
-        if (!auth()->user()->canViewReports()) {
+        if (! $user->canViewReports()) {
             abort(403, 'You do not have permission to view reports');
         }
-
-        $user = auth()->user();
         $validated = $request->validate([
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -202,12 +209,13 @@ class ReportController extends Controller
      */
     public function profitAnalysis(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Admin and Owner can view reports
-        if (!auth()->user()->canViewReports()) {
+        if (! $user->canViewReports()) {
             abort(403, 'You do not have permission to view reports');
         }
-
-        $user = auth()->user();
         $validated = $request->validate([
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date'

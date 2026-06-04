@@ -7,6 +7,7 @@ use App\Models\Sale;
 use App\Models\OnlineOrder;
 use App\Models\Product;
 use App\Models\Inventory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +19,8 @@ class ReturnAndRefundController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
         $query = ReturnAndRefund::with('product', 'sale', 'onlineOrder', 'processedByUser');
         
         if (!$user->isOwner()) {
@@ -53,12 +55,14 @@ class ReturnAndRefundController extends Controller
      */
     public function create()
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Cashier and Owner can create returns
-        if (!auth()->user()->canAccessPOS()) {
+        if (! $user->canAccessPOS()) {
             abort(403, 'You do not have permission to create returns');
         }
 
-        $user = auth()->user();
         $reasons = ['damaged', 'defective', 'wrong_item', 'customer_request'];
         $actions = ['refund', 'replacement', 'store_credit'];
         
@@ -79,8 +83,11 @@ class ReturnAndRefundController extends Controller
      */
     public function store(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Cashier and Owner can create returns
-        if (!auth()->user()->canAccessPOS()) {
+        if (! $user->canAccessPOS()) {
             abort(403, 'You do not have permission to create returns');
         }
         $validated = $request->validate([
@@ -123,12 +130,13 @@ class ReturnAndRefundController extends Controller
      */
     public function approve(Request $request, ReturnAndRefund $return)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Admin and Owner can approve returns
-        if (!Auth::user()->canManageReturns()) {
+        if (! $user->canManageReturns()) {
             abort(403, 'You do not have permission to approve returns');
         }
-
-        $user = Auth::user();
         
         // Check if user has access to this return
         if (!$user->isOwner()) {
@@ -184,8 +192,11 @@ class ReturnAndRefundController extends Controller
      */
     public function reject(Request $request, ReturnAndRefund $return)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         // Only Admin and Owner can reject returns
-        if (!Auth::user()->canManageReturns()) {
+        if (! $user->canManageReturns()) {
             abort(403, 'You do not have permission to reject returns');
         }
 

@@ -2,7 +2,9 @@
 
 namespace App\Traits;
 
-use Illuminate\Auth\AuthorizationException;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
 
 trait Authorizable
 {
@@ -14,7 +16,10 @@ trait Authorizable
      */
     public function authorizeRole(string $role): void
     {
-        if (!auth()->check() || auth()->user()->role !== $role) {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (! $user || $user->role !== $role) {
             throw new AuthorizationException('Unauthorized action.');
         }
     }
@@ -27,7 +32,10 @@ trait Authorizable
      */
     public function authorizeRoles(array $roles): void
     {
-        if (!auth()->check() || !in_array(auth()->user()->role, $roles)) {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (! $user || ! in_array($user->role, $roles)) {
             throw new AuthorizationException('Unauthorized action.');
         }
     }
@@ -41,7 +49,10 @@ trait Authorizable
      */
     public function authorizePermission(string $action, string $resource): void
     {
-        if (!auth()->check() || !auth()->user()->hasPermission($action, $resource)) {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (! $user || ! $user->hasPermission($action, $resource)) {
             throw new AuthorizationException('Unauthorized action.');
         }
     }
@@ -54,7 +65,10 @@ trait Authorizable
      */
     public function authorizeBranch(string $branch): void
     {
-        if (!auth()->check() || !auth()->user()->canManageBranch($branch)) {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (! $user || ! $user->canManageBranch($branch)) {
             throw new AuthorizationException('Unauthorized action.');
         }
     }
