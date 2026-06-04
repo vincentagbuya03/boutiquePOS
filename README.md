@@ -15,6 +15,7 @@
 - [RBAC Documentation](RBAC_DOCUMENTATION.md)
 - [User Management Docs](USER_MANAGEMENT_DOCS.md)
 - [ERD](ERD.md)
+- [Network Diagram](NETWORK_DIAGRAM.md)
 - [Test Accounts](TEST_ACCOUNTS.md)
 
 ## About Laravel

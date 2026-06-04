@@ -29,7 +29,7 @@ use Illuminate\Database\Seeder;
  * ========================
  */
 
-class RoleBasedUserSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.

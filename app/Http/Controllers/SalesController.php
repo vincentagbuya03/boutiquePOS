@@ -7,9 +7,11 @@ use App\Models\SaleItem;
 use App\Models\Product;
 use App\Models\Inventory;
 use App\Models\ProductBatch;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class SalesController extends Controller
 {
@@ -34,7 +36,9 @@ class SalesController extends Controller
     public function create()
     {
         // Only Cashier and Owner can create sales
-        if (!Auth::user()->canAccessPOS()) {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user || !$user->canAccessPOS()) {
             abort(403, 'You do not have permission to create sales');
         }
 
@@ -49,7 +53,9 @@ class SalesController extends Controller
     public function store(Request $request)
     {
         // Only Cashier and Owner can create sales
-        if (!Auth::user()->canAccessPOS()) {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user || !$user->canAccessPOS()) {
             abort(403, 'You do not have permission to create sales');
         }
 
@@ -64,7 +70,7 @@ class SalesController extends Controller
             'payment_method' => 'required|in:cash,gcash',
             'discount_type' => 'required|in:none,pwd,senior_citizen',
             'discount_amount' => 'required|numeric|min:0',
-            'cash_received' => 'nullable|numeric|min:0',
+            'cash_received' => 'required_if:payment_method,cash|nullable|numeric|min:0',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -79,8 +85,8 @@ class SalesController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'discount_type' => $validated['discount_type'],
                 'discount_amount' => $validated['discount_amount'],
-                'cash_received' => $validated['cash_received'] ?? 0,
-                'status' => 'completed',
+                'cash_received' => 0,
+                'status' => 'pending',
                 'date_sold' => today()
             ]);
 
@@ -139,17 +145,43 @@ class SalesController extends Controller
             }
 
             // Apply discount to final total
-            $finalTotal = $totalAmount - $validated['discount_amount'];
-            $changeAmount = ($validated['cash_received'] ?? 0) > $finalTotal ? ($validated['cash_received'] - $finalTotal) : 0;
+            $discountAmount = round((float) $validated['discount_amount'], 2);
+            if ($discountAmount > $totalAmount) {
+                throw ValidationException::withMessages([
+                    'discount_amount' => 'Discount cannot be greater than the subtotal.'
+                ]);
+            }
+
+            $finalTotal = round($totalAmount - $discountAmount, 2);
+
+            $cashReceived = round((float) ($validated['cash_received'] ?? 0), 2);
+            if ($validated['payment_method'] === 'gcash' && $cashReceived <= 0) {
+                $cashReceived = $finalTotal;
+            }
+
+            if ($cashReceived < $finalTotal) {
+                throw ValidationException::withMessages([
+                    'cash_received' => 'Insufficient payment. Amount due is ₱' . number_format($finalTotal, 2) . '.'
+                ]);
+            }
+
+            $changeAmount = $validated['payment_method'] === 'cash'
+                ? round(max(0, $cashReceived - $finalTotal), 2)
+                : 0;
             
             $sale->update([
                 'total_amount' => $finalTotal,
-                'change_amount' => $changeAmount
+                'cash_received' => $cashReceived,
+                'change_amount' => $changeAmount,
+                'status' => 'completed'
             ]);
 
             DB::commit();
 
             return redirect()->route('sales.show', $sale)->with('success', 'Sale recorded successfully');
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
