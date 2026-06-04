@@ -476,7 +476,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('login') }}" method="POST">
+                <form action="{{ route('login', [], false) }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <label class="form-label" for="email">

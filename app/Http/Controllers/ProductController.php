@@ -6,7 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Auth\AuthorizationException;
-
+use Illuminate\Support\Facades\Auth;
 class ProductController extends Controller
 {
     public function index()
@@ -23,7 +23,7 @@ class ProductController extends Controller
     public function create()
     {
         // Only Staff and Owner can create products
-        if (!auth()->user()->canManageProducts()) {
+        if (!Auth::check() || !Auth::user()->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to create products');
         }
 
@@ -37,7 +37,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         // Only Staff and Owner can store products
-        if (!auth()->user()->canManageProducts()) {
+        if (!Auth::check() || !Auth::user()->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to create products');
         }
 
@@ -90,7 +90,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         // Only Staff and Owner can edit products
-        if (!auth()->user()->canManageProducts()) {
+        if (!Auth::check() || !Auth::user()->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to edit products');
         }
 
@@ -104,7 +104,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         // Only Staff and Owner can update products
-        if (!auth()->user()->canManageProducts()) {
+        if (!Auth::check() || !Auth::user()->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to update products');
         }
 
@@ -146,7 +146,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         // Only Staff and Owner can archive products
-        if (!auth()->user()->canManageProducts()) {
+        if (!Auth::check() || !Auth::user()->canManageProducts()) {
             throw new AuthorizationException('You do not have permission to archive products');
         }
 

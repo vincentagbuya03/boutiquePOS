@@ -6,7 +6,7 @@
             <p style="font-size: 0.85rem; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;">Boutique Management</p>
         </div>
         
-        <form id="loginForm" action="{{ route('login') }}" method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <form id="loginForm" action="{{ route('login', [], false) }}" method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
             @csrf
             
             <div>
