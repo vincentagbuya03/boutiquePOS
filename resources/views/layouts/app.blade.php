@@ -188,6 +188,7 @@
             overflow: hidden;
             background: #fff;
             margin-left: var(--sidebar-width);
+            min-width: 0;
         }
 
         .top-navbar {
@@ -312,38 +313,220 @@
         /* General UI Polish */
         .pos-card { background: white; border-radius: 20px; border: 1px solid var(--color-border); padding: 2rem; margin-bottom: 2rem; }
 
+        .container-fluid {
+            width: 100%;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: -0.75rem;
+            margin-right: -0.75rem;
+        }
+
+        .row > [class*="col-"] {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            width: 100%;
+        }
+
+        .col-12 { flex: 0 0 100%; max-width: 100%; }
+
+        @media (min-width: 768px) {
+            .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+            .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+            .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+        }
+
+        @media (min-width: 992px) {
+            .col-lg-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+            .col-lg-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+            .col-lg-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+            .col-lg-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+        }
+
+        .g-4 { row-gap: 1.5rem; }
+        .g-5 { row-gap: 3rem; }
+        .d-flex { display: flex; }
+        .align-items-center { align-items: center; }
+        .align-items-end { align-items: flex-end; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-end { justify-content: flex-end; }
+        .text-end { text-align: right; }
+        .text-center { text-align: center; }
+        .text-muted { color: #999; }
+        .mb-0 { margin-bottom: 0; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mb-5 { margin-bottom: 3rem; }
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mt-5 { margin-top: 3rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .px-4 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .pt-3 { padding-top: 1rem; }
+        .border-top { border-top: 1px solid #f1f1f1; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 1rem; }
+        .me-2 { margin-right: 0.5rem; }
+        .small, small { font-size: 0.8em; }
+
+        .card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #f1f1f1;
+            background: #fafafa;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .shadow { box-shadow: 0 12px 30px rgba(0,0,0,0.04); }
+        .bg-info { background: #3c5e5e !important; }
+        .bg-success { background: #166534 !important; }
+        .bg-danger { background: #991b1b !important; }
+        .text-white { color: white !important; }
+        .text-danger { color: #991b1b !important; }
+        .text-success { color: #166534 !important; }
+        .text-info { color: #3c5e5e !important; }
+        .opacity-25 { opacity: 0.25; }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f1f1;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            font-weight: 800;
+            font-size: 0.82rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--color-editorial); color: white; }
+        .btn-secondary { background: #f1f3f5; color: #495057; }
+        .btn-warning { background: #fffbeb; color: #92400e; }
+        .btn-danger { background: #991b1b; color: white; }
+        .btn-sm { padding: 0.45rem 0.75rem; font-size: 0.72rem; }
+        .w-100 { width: 100%; }
+
+        .list-group-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        img, video, canvas, svg {
+            max-width: 100%;
+        }
+
+        input, select, textarea, button {
+            max-width: 100%;
+        }
+
+        .arch-table-card,
+        .arch-table-shell,
+        .archive-table-shell,
+        .returns-table-wrapper,
+        .orders-section-card {
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .arch-table,
+        .archive-table,
+        .returns-table {
+            min-width: 720px;
+        }
+
+        .action-group {
+            flex-wrap: wrap;
+        }
+
+        .btn-arch-primary,
+        .btn-arch-secondary,
+        .btn-arch-danger,
+        .btn-arch-view,
+        .seasonal-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+
         @media (max-width: 768px) {
             body {
                 height: auto;
+                background: #f4f5f7;
             }
 
             .app-container {
                 flex-direction: column;
                 min-height: 100vh;
+                background: #f4f5f7;
             }
 
             .sidebar {
                 width: 100%;
                 height: auto;
                 border-right: none;
-                border-bottom: 1px solid var(--color-border);
+                border-bottom: 1px solid #eceef1;
+                position: static;
+                background: #fff;
+                box-shadow: 0 1px 0 rgba(16, 24, 40, 0.04);
             }
 
             .sidebar-brand {
-                padding: 1.25rem 1rem 0.75rem;
+                padding: 0.9rem 1rem 0.35rem;
             }
 
             .brand-title {
-                font-size: 1.3rem;
+                font-size: 1.25rem;
+                letter-spacing: -0.01em;
+            }
+
+            .brand-subtitle {
+                font-size: 0.52rem;
+                letter-spacing: 0.16em;
+                margin-top: 0.45rem;
             }
 
             .sidebar-nav {
                 display: flex;
-                gap: 0.5rem;
-                padding: 0.75rem 1rem 1rem;
+                gap: 0.45rem;
+                padding: 0.55rem 1rem 0.8rem;
                 overflow-x: auto;
                 overflow-y: hidden;
                 scrollbar-width: none;
+                scroll-snap-type: x proximity;
             }
 
             .sidebar-nav::-webkit-scrollbar {
@@ -356,13 +539,45 @@
 
             .nav-link {
                 margin-bottom: 0;
-                white-space: nowrap;
-                padding: 0.75rem 1rem;
-                font-size: 0.75rem;
+                flex: 0 0 74px;
+                height: 58px;
+                white-space: normal;
+                padding: 0.55rem 0.45rem;
+                font-size: 0.62rem;
+                line-height: 1.1;
+                border-radius: 14px;
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                gap: 0.35rem;
+                color: #747782;
+                scroll-snap-align: start;
+            }
+
+            .nav-link i {
+                width: auto;
+                margin-right: 0;
+                font-size: 1rem;
+                opacity: 0.55;
+            }
+
+            .nav-link .nav-text {
+                display: block;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .nav-link.active {
+                border-right: 1px solid rgba(128, 32, 48, 0.1);
+                border-bottom: 3px solid var(--color-editorial);
+                border-radius: 14px;
+                background: #fdf2f4;
+                box-shadow: none;
             }
 
             .sidebar-footer {
-                padding: 1rem;
+                display: none;
             }
 
             .footer-action,
@@ -371,47 +586,567 @@
             }
 
             .main-workspace {
+                margin-left: 0;
                 min-width: 0;
+                width: 100%;
+                overflow: visible;
+                background: #f4f5f7;
             }
 
             .top-navbar {
                 height: auto;
-                padding: 1rem;
-                align-items: stretch;
-                gap: 1rem;
+                padding: 0.8rem 1rem;
+                align-items: center;
+                gap: 0.75rem;
+                flex-direction: row;
+                background: #fff;
+                border-bottom: 1px solid #eceef1;
             }
 
             .navbar-left,
             .navbar-right {
-                width: 100%;
+                width: auto;
             }
 
             .navbar-left {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 1rem;
+                flex: 1;
+                min-width: 0;
+                gap: 0;
             }
 
             .navbar-right {
+                flex: 0 0 auto;
                 justify-content: flex-end;
-                gap: 1rem;
+                gap: 0.5rem;
             }
 
             .page-brand-context {
-                font-size: 1rem;
+                display: none;
             }
 
             .navbar-search,
             .navbar-search:focus-within {
                 width: 100%;
+                height: 42px;
+                padding: 0.55rem 0.9rem;
+                border-radius: 12px;
+                background: #f5f6f8;
+                box-shadow: none;
+            }
+
+            .search-icon-nav {
+                margin-right: 0.65rem;
+                font-size: 0.82rem;
+            }
+
+            .search-input-nav {
+                font-size: 0.78rem;
+            }
+
+            .nav-logout-btn,
+            .nav-avatar-circle {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                flex-shrink: 0;
             }
 
             .workspace-scroll {
-                padding: 1rem;
+                padding: 1.25rem 1rem 5rem;
+                overflow: visible;
             }
 
             .view-content-title {
                 font-size: 1.9rem;
+                line-height: 1.08;
+            }
+
+            .view-content-subtitle {
+                margin-bottom: 1.5rem;
+                line-height: 1.45;
+            }
+
+            .pos-card,
+            .form-card,
+            .arch-form-card,
+            .arch-table-card,
+            .arch-table-shell,
+            .archive-table-shell,
+            .returns-table-wrapper,
+            .orders-section-card,
+            .chart-perf-card,
+            .arch-content-card,
+            .focus-card,
+            .detail-card,
+            .glass-section-card,
+            .card,
+            .piece-identity-card,
+            .stock-controller-card,
+            .admin-section,
+            .action-card {
+                border-radius: 18px !important;
+                padding: 1rem !important;
+                box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04) !important;
+            }
+
+            .index-header,
+            .report-header,
+            .profit-header,
+            .archive-header,
+            .adjust-header,
+            .claim-header,
+            .form-header,
+            .view-header,
+            .reports-header,
+            .section-header-flex,
+            .chart-perf-header,
+            .card-title-flex,
+            .actions-footer,
+            .report-footer {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .index-title,
+            .overview-title,
+            .view-content-title,
+            .form-title,
+            .product-title,
+            .reports-title,
+            .adjust-title {
+                font-size: 1.7rem !important;
+                line-height: 1.15 !important;
+                letter-spacing: 0 !important;
+            }
+
+            .index-subtitle,
+            .overview-subtitle,
+            .form-subtitle,
+            .reports-subtitle,
+            .adjust-subtitle {
+                font-size: 0.95rem !important;
+                line-height: 1.45 !important;
+                letter-spacing: 0.04em !important;
+            }
+
+            .action-group {
+                width: 100%;
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: 0.75rem !important;
+            }
+
+            .btn-arch-primary,
+            .btn-arch-secondary,
+            .btn-arch-danger,
+            .btn-arch-view,
+            .seasonal-action-btn {
+                width: 100%;
+                padding: 0.85rem 1rem !important;
+                white-space: normal;
+            }
+
+            .arch-product-ribbon,
+            .stats-main-grid,
+            .stats-editorial,
+            .stats-editorial-ribbon,
+            .stats-grid,
+            .analysis-grid,
+            .performance-grid,
+            .dashboard-content-grid,
+            .focus-grid,
+            .adjust-grid,
+            .dossier-grid,
+            .admin-grid,
+            .form-layout-split,
+            .form-row,
+            .form-grid,
+            .role-grid,
+            form.filter-ribbon,
+            .reports-grid,
+            .kpi-grid,
+            .quick-links,
+            .charts-section {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+
+            .row {
+                display: flex !important;
+                flex-direction: column !important;
+                flex-wrap: nowrap !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                gap: 1rem;
+            }
+
+            .row > [class*="col-"] {
+                max-width: 100% !important;
+                width: 100% !important;
+                flex: 0 0 auto !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .d-flex {
+                flex-wrap: wrap;
+            }
+
+            .justify-content-between,
+            .justify-content-end {
+                justify-content: flex-start !important;
+            }
+
+            .text-end {
+                text-align: left !important;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 1rem !important;
+            }
+
+            .piece-details {
+                padding: 1.25rem !important;
+            }
+
+            .piece-meta,
+            .product-rank-item,
+            .customer-profile {
+                gap: 0.75rem !important;
+            }
+
+            .piece-price {
+                font-size: 1.35rem !important;
+            }
+
+            .stat-arch-card,
+            .seasonal-archive-card {
+                border-radius: 16px !important;
+                padding: 1rem !important;
+                min-height: 0 !important;
+            }
+
+            .stat-arch-value {
+                font-size: 1.75rem !important;
+                margin-bottom: 0.55rem !important;
+                line-height: 1.05 !important;
+                overflow-wrap: anywhere;
+            }
+
+            .stat-arch-label {
+                margin-bottom: 0.7rem !important;
+                font-size: 0.58rem !important;
+                letter-spacing: 0.12em !important;
+            }
+
+            .stat-arch-meta {
+                font-size: 0.68rem !important;
+                line-height: 1.25 !important;
+            }
+
+            .stat-ghost-icon {
+                display: none !important;
+            }
+
+            .seasonal-title,
+            .chart-perf-title,
+            .section-title {
+                font-size: 1.35rem !important;
+                line-height: 1.15 !important;
+            }
+
+            .arch-bars-container {
+                height: 180px !important;
+                min-width: 520px;
+            }
+
+            .chart-perf-card {
+                overflow-x: auto;
+            }
+
+            .overview-header {
+                margin-bottom: 1.25rem !important;
+            }
+
+            .chart-perf-container {
+                height: 220px !important;
+            }
+
+            .chart-toggle-pill {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .toggle-pill-item {
+                flex: 1;
+                text-align: center;
+                padding: 0.55rem 0.7rem !important;
+            }
+
+            .seasonal-archive-card {
+                min-height: 220px;
+            }
+
+            .arch-content-card table,
+            .orders-section-card table,
+            .arch-table-card table,
+            .arch-table-shell table,
+            .returns-table-wrapper table,
+            .archive-table-shell table,
+            .card table {
+                font-size: 0.8rem;
+            }
+
+            .product-details-container,
+            .form-container,
+            .edit-product-container,
+            .create-user-container,
+            .create-claim-container,
+            .settings-container,
+            .claim-show-container,
+            .returns-container,
+            .receipt-wrapper {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .product-image-wrapper {
+                height: auto !important;
+                aspect-ratio: 4 / 3;
+                margin-bottom: 1rem !important;
+            }
+
+            .detail-row,
+            .data-row,
+            .mini-stat,
+            .product-rank-item,
+            .stock-item-row,
+            .feed-item {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.45rem !important;
+            }
+
+            .detail-value,
+            .data-value,
+            .receipt-value {
+                max-width: 100% !important;
+                text-align: left !important;
+                overflow-wrap: anywhere;
+            }
+
+            .action-group,
+            .form-footer-actions,
+            .btn-action-group,
+            .settings-actions,
+            .receipt-header-actions {
+                width: 100% !important;
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                justify-content: stretch !important;
+                gap: 0.75rem !important;
+            }
+
+            .btn-premium,
+            .btn-main,
+            .btn-outline,
+            .btn-save,
+            .btn-print,
+            .btn-primary,
+            .btn-secondary,
+            .btn-submit,
+            .btn-cancel,
+            .btn-create,
+            .btn-approve,
+            .btn-reject,
+            .open-pos-btn,
+            .quick-link {
+                width: 100% !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .arch-input {
+                font-size: 1rem !important;
+                padding: 0.85rem 0 !important;
+            }
+
+            .arch-upload-zone,
+            .upload-zone,
+            .matrix-container {
+                padding: 1.25rem !important;
+                border-radius: 16px !important;
+            }
+
+            .matrix-container,
+            .arch-table-card,
+            .arch-table-shell,
+            .archive-table-shell,
+            .returns-table-wrapper,
+            .chart-card,
+            .card:has(table) {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .date-range-picker,
+            form.filter-ribbon,
+            .filter-form {
+                width: 100% !important;
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                align-items: stretch !important;
+                padding: 1rem !important;
+                gap: 0.75rem !important;
+                border-radius: 16px !important;
+            }
+
+            .date-range-picker input,
+            .filter-input,
+            form.filter-ribbon input,
+            form.filter-ribbon select,
+            .filter-form input,
+            .filter-form select {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .quick-access,
+            .kpi-card,
+            .report-card,
+            .chart-card,
+            .stat-card {
+                border-radius: 18px !important;
+                padding: 1rem !important;
+            }
+
+            .quick-access::before,
+            .report-card::before,
+            .kpi-card::before {
+                display: none !important;
+            }
+
+            .kpi-icon,
+            .report-icon {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+                font-size: 1.15rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .kpi-value {
+                font-size: 1.55rem !important;
+                overflow-wrap: anywhere;
+            }
+
+            .report-description {
+                margin-bottom: 1.25rem !important;
+            }
+
+            .chart-placeholder {
+                height: 190px !important;
+                min-width: 420px;
+                padding: 1rem !important;
+            }
+
+            .piece-identity-card {
+                position: static !important;
+            }
+
+            .current-stock-pill {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 0.45rem !important;
+                padding: 1rem !important;
+                border-radius: 16px !important;
+            }
+
+            .current-stock-pill > div {
+                margin-left: 0 !important;
+            }
+
+            .matrix-table,
+            .table,
+            .arch-table,
+            .archive-table,
+            .returns-table {
+                min-width: 680px;
+            }
+
+            .arch-receipt-card {
+                max-width: 100% !important;
+                padding: 1.25rem !important;
+            }
+
+            .receipt-grid > div,
+            .summary-row,
+            .total-row {
+                gap: 1rem;
+            }
+
+            .fab-plus-arch {
+                position: fixed !important;
+                right: 1rem !important;
+                bottom: 1rem !important;
+                width: 54px !important;
+                height: 54px !important;
+                z-index: 50;
+                box-shadow: 0 12px 30px rgba(128, 32, 48, 0.32) !important;
+            }
+
+            .filter-ribbon {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            [style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            [style*="max-width"] {
+                max-width: 100% !important;
+            }
+
+            [style*="min-width: 250px"],
+            [style*="width: 220px"] {
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .stats-main-grid,
+            .stats-editorial-ribbon,
+            .stats-editorial,
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 0.75rem !important;
+            }
+
+            .stat-arch-card {
+                padding: 0.9rem !important;
+            }
+
+            .stat-arch-value {
+                font-size: 1.42rem !important;
+            }
+
+            .stat-arch-meta {
+                align-items: flex-start !important;
+            }
+
+            .nav-link {
+                flex-basis: 68px;
+            }
+
+            .workspace-scroll {
+                padding-inline: 0.85rem;
             }
         }
         @media print {
@@ -465,29 +1200,29 @@
 
             <nav class="sidebar-nav">
                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-th-large"></i> Dashboard
+                    <i class="fas fa-th-large"></i> <span class="nav-text">Dashboard</span>
                 </a>
 
                 {{-- Product & Supply Chain --}}
                 @if(auth()->user()->isOwner() || auth()->user()->isAdmin() || auth()->user()->isStaff())
                 <div class="nav-section-label">Inventory & Supply</div>
                 <a href="{{ route('products.index') }}" class="nav-link {{ request()->is('products*') ? 'active' : '' }}">
-                    <i class="fas fa-swatchbook"></i> Product Catalog
+                    <i class="fas fa-swatchbook"></i> <span class="nav-text">Products</span>
                 </a>
                 <a href="{{ route('categories.index') }}" class="nav-link {{ request()->is('categories*') ? 'active' : '' }}">
-                    <i class="fas fa-tags"></i> Categories
+                    <i class="fas fa-tags"></i> <span class="nav-text">Categories</span>
                 </a>
                 <a href="{{ route('inventory.index') }}" class="nav-link {{ request()->is('inventory*') ? 'active' : '' }}">
-                    <i class="fas fa-archive"></i> Stock Levels
+                    <i class="fas fa-archive"></i> <span class="nav-text">Stock</span>
                 </a>
                 <a href="{{ route('batches.index') }}" class="nav-link {{ request()->is('batches*') ? 'active' : '' }}">
-                    <i class="fas fa-layer-group"></i> Product Batches
+                    <i class="fas fa-layer-group"></i> <span class="nav-text">Batches</span>
                 </a>
                 <a href="{{ route('suppliers.index') }}" class="nav-link {{ request()->is('suppliers*') ? 'active' : '' }}">
-                    <i class="fas fa-truck-loading"></i> Suppliers
+                    <i class="fas fa-truck-loading"></i> <span class="nav-text">Suppliers</span>
                 </a>
                 <a href="{{ route('archives.index') }}" class="nav-link {{ request()->is('archives*') ? 'active' : '' }}">
-                    <i class="fas fa-box-archive"></i> Archive
+                    <i class="fas fa-box-archive"></i> <span class="nav-text">Archive</span>
                 </a>
                 @endif
 
@@ -495,13 +1230,13 @@
                 @if(auth()->user()->isOwner() || auth()->user()->isAdmin() || auth()->user()->isCashier())
                 <div class="nav-section-label">Operations</div>
                 <a href="{{ route('sales.create') }}" class="nav-link {{ request()->routeIs('sales.create') ? 'active' : '' }}">
-                    <i class="fas fa-cash-register"></i> POS Terminal
+                    <i class="fas fa-cash-register"></i> <span class="nav-text">POS</span>
                 </a>
                 <a href="{{ route('sales.index') }}" class="nav-link {{ request()->routeIs('sales.index') ? 'active' : '' }}">
-                    <i class="fas fa-history"></i> Sales Logs
+                    <i class="fas fa-history"></i> <span class="nav-text">Sales</span>
                 </a>
                 <a href="{{ route('returns.index') }}" class="nav-link {{ request()->is('returns*') ? 'active' : '' }}">
-                    <i class="fas fa-undo-alt"></i> Returns & Refunds
+                    <i class="fas fa-undo-alt"></i> <span class="nav-text">Returns</span>
                 </a>
                 @endif
                 
@@ -509,10 +1244,10 @@
                 @if(auth()->user()->isOwner() || auth()->user()->isAdmin())
                 <div class="nav-section-label">Administration</div>
                 <a href="{{ route('users.index') }}" class="nav-link {{ request()->is('users*') ? 'active' : '' }}">
-                    <i class="fas fa-user-shield"></i> Personnel
+                    <i class="fas fa-user-shield"></i> <span class="nav-text">Personnel</span>
                 </a>
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->is('reports*') ? 'active' : '' }}">
-                    <i class="fas fa-chart-line"></i> Reports & Insights
+                    <i class="fas fa-chart-line"></i> <span class="nav-text">Reports</span>
                 </a>
                 @endif
             </nav>

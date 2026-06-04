@@ -486,6 +486,113 @@
         from { opacity: 0; transform: scale(0.9) translateY(20px); }
         to { opacity: 1; transform: scale(1) translateY(0); }
     }
+
+    @media (max-width: 1100px) {
+        body {
+            overflow: auto;
+        }
+
+        .pos-shell {
+            height: auto;
+            min-height: 0;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .product-scroller {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            max-height: none;
+            overflow: visible;
+        }
+
+        .pos-receipt-panel {
+            width: 100%;
+            max-height: none;
+        }
+
+        .cart-container {
+            max-height: 340px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .pos-top-control {
+            border-radius: 16px;
+            padding: 0.75rem;
+        }
+
+        .product-scroller {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .pos-product-card {
+            border-radius: 14px;
+        }
+
+        .pos-card-name {
+            white-space: normal;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            min-height: 2.05rem;
+        }
+
+        .pos-receipt-panel {
+            border-radius: 18px;
+        }
+
+        .cart-item-row {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .cart-item-row > div:last-child {
+            width: 100%;
+            text-align: right;
+        }
+
+        .total-value {
+            font-size: 1.45rem;
+        }
+
+        .pos-modal-overlay {
+            align-items: flex-end;
+            padding: 0.75rem;
+        }
+
+        .pos-modal {
+            border-radius: 22px;
+            padding: 1.25rem;
+            max-height: calc(100dvh - 1.5rem);
+            overflow-y: auto;
+        }
+
+        .payment-highlight-box {
+            border-radius: 18px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .amount-input-wrap {
+            padding: 0.85rem 1rem;
+        }
+
+        .amount-input-wrap input {
+            font-size: 1.35rem;
+        }
+
+        .discount-options {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .discount-box {
+            flex-direction: row;
+            justify-content: center;
+        }
+    }
 </style>
 @endsection
 

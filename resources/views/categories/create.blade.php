@@ -8,8 +8,16 @@
     .form-title { font-size: 2rem; font-weight: 800; color: #1a1a1a; margin-bottom: 2rem; }
     .form-group { margin-bottom: 1.5rem; }
     .form-label { display: block; font-size: 0.75rem; font-weight: 700; color: #adb5bd; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-    .form-control { width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--color-border); font-size: 0.9rem; font-weight: 600; outline: none; transition: border-color 0.2s; }
-    .form-control:focus { border-color: var(--color-editorial); }
+    .form-control { width: 100%; 
+        padding: 1rem; 
+        border-radius: 12px; 
+        border: 1px solid var(--color-border); 
+        font-size: 0.9rem; font-weight: 600; 
+        outline: none; transition: border-color 0.2s; 
+        }
+    .form-control:focus { 
+        border-color: var(--color-editorial);
+     }
     .btn-arch-primary { background: var(--color-editorial); color: white; padding: 1rem 2.5rem; border-radius: 100px; border: none; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: transform 0.2s; }
 </style>
 @endsection
