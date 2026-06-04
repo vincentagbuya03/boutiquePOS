@@ -51,14 +51,15 @@
     .revenue-val { font-weight: 800; color: var(--color-editorial); font-size: 1rem; }
 
     @media print {
-        @page { margin: 1.5cm; size: auto; }
+        @page { margin: 1.5cm; size: portrait; }
         body { background: white !important; color: black !important; font-size: 10pt; }
         .sidebar, .top-navbar, .btn-print, .filter-form, .profit-header, .no-print { display: none !important; }
         .print-only-header { display: block !important; }
         .main-workspace, .workspace-scroll { overflow: visible !important; padding: 0 !important; margin: 0 !important; display: block !important; }
-        .summary-card, .top-products-card { border: 1px solid #eee !important; box-shadow: none !important; margin-bottom: 2rem !important; border-radius: 20px !important; }
+        .summary-card, .top-products-card { border: 1px solid #e1e1e1 !important; box-shadow: none !important; margin-bottom: 2rem !important; border-radius: 20px !important; }
+        .insights-card { border: 1px solid #e1e1e1 !important; padding: 1.5rem !important; margin-top: 2rem !important; border-radius: 20px !important; page-break-inside: avoid !important; }
         .analysis-grid { grid-template-columns: 1fr; gap: 2rem; }
-        .report-footer { margin-top: 5rem !important; page-break-inside: avoid !important; }
+        .report-footer { margin-top: 4rem !important; page-break-inside: avoid !important; }
         img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .product-rank-item { page-break-inside: avoid !important; }
     }
@@ -67,12 +68,14 @@
 
 @section('content')
 <div class="print-only-header" style="display: none;">
-    <div style="text-align: center; margin-bottom: 3rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 2rem;">
-        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.5rem; letter-spacing: -0.05em;">V’S Fashion</div>
+    <div style="text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 1.5rem;">
+        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.25rem; letter-spacing: -0.05em;">V’S Fashion</div>
         <div style="font-size: 0.8rem; font-weight: 700; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.5rem;">Financial Profitability Analysis</div>
-        <div style="font-size: 0.85rem; color: #666; font-weight: 500;">
-            San Carlos City, Pangasinan<br>
-            Contact: +63 09158969268 • Confidential Management Document
+        <div style="font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 0.5rem;">
+            San Carlos City, Pangasinan • Contact: +63 09158969268
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-editorial); text-transform: uppercase; letter-spacing: 0.05em;">
+            Period: {{ \Carbon\Carbon::parse($validated['start_date'] ?? now()->subMonth())->format('F d, Y') }} to {{ \Carbon\Carbon::parse($validated['end_date'] ?? now())->format('F d, Y') }}
         </div>
     </div>
 </div>
@@ -162,7 +165,7 @@
     </div>
 </div>
 
-<div style="background: white; border-radius: 30px; padding: 3rem; border: 1px solid var(--color-border);">
+<div class="insights-card" style="background: white; border-radius: 30px; padding: 3rem; border: 1px solid var(--color-border);">
     <h2 style="font-size: 1.15rem; font-weight: 800; color: #1a1a1a; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
         <i class="fas fa-lightbulb" style="color: var(--color-editorial);"></i>
         Business Insights

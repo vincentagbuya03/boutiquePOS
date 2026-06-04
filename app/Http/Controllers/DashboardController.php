@@ -45,12 +45,53 @@ class DashboardController extends Controller
         $totalProducts = Product::count();
         $totalUsers = User::whereNotNull('role')->count();
         
-        // Get sales trend for the last 7 days
-        $salesTrend = Sale::selectRaw('DATE(date_sold) as date, SUM(total_amount) as total')
-            ->whereBetween('date_sold', [now()->subDays(7), now()])
+        // Get sales trend for the last 7 days (including empty dates)
+        $salesTrend7Raw = Sale::selectRaw('DATE(date_sold) as date, SUM(total_amount) as total')
+            ->whereBetween('date_sold', [now()->subDays(6), now()])
             ->groupBy('date')
             ->orderBy('date')
             ->get();
+
+        $salesTrend7 = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $dateStr = now()->subDays($i)->format('Y-m-d');
+            $salesTrend7[$dateStr] = [
+                'date' => $dateStr,
+                'label' => now()->subDays($i)->format('D'),
+                'total' => 0
+            ];
+        }
+        foreach ($salesTrend7Raw as $data) {
+            $dateStr = \Carbon\Carbon::parse($data->date)->format('Y-m-d');
+            if (isset($salesTrend7[$dateStr])) {
+                $salesTrend7[$dateStr]['total'] = (float) $data->total;
+            }
+        }
+        $salesTrend7 = array_values($salesTrend7);
+
+        // Get sales trend for the last 30 days (including empty dates)
+        $salesTrend30Raw = Sale::selectRaw('DATE(date_sold) as date, SUM(total_amount) as total')
+            ->whereBetween('date_sold', [now()->subDays(29), now()])
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $salesTrend30 = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $dateStr = now()->subDays($i)->format('Y-m-d');
+            $salesTrend30[$dateStr] = [
+                'date' => $dateStr,
+                'label' => now()->subDays($i)->format('M d'),
+                'total' => 0
+            ];
+        }
+        foreach ($salesTrend30Raw as $data) {
+            $dateStr = \Carbon\Carbon::parse($data->date)->format('Y-m-d');
+            if (isset($salesTrend30[$dateStr])) {
+                $salesTrend30[$dateStr]['total'] = (float) $data->total;
+            }
+        }
+        $salesTrend30 = array_values($salesTrend30);
 
         // Get monthly summary
         $monthlySales = Sale::selectRaw('MONTH(date_sold) as month, SUM(total_amount) as total')
@@ -89,7 +130,8 @@ class DashboardController extends Controller
             'todaySales',
             'totalProducts',
             'totalUsers',
-            'salesTrend',
+            'salesTrend7',
+            'salesTrend30',
             'monthlySales',
             'lowStockItems',
             'totalProfit'

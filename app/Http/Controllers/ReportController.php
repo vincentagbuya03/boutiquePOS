@@ -30,7 +30,9 @@ class ReportController extends Controller
         $sixtyDaysAgo = now()->subDays(60);
         
         // Current 30 days
-        $sales = Sale::whereBetween('date_sold', [$thirtyDaysAgo, now()])->get();
+        $sales = Sale::with(['items.product.latestBatch', 'items.product.firstAvailableBatch'])
+            ->whereBetween('date_sold', [$thirtyDaysAgo, now()])
+            ->get();
         $totalSales = $sales->sum('total_amount');
         $totalTransactions = $sales->count();
         
@@ -50,11 +52,15 @@ class ReportController extends Controller
         // Profit
         $totalProfit = 0;
         foreach($sales as $sale) {
+            $grossProfit = 0;
             foreach($sale->items as $item) {
-                if($item->product && $item->product->firstAvailableBatch) {
-                    $totalProfit += ($item->unit_price - $item->product->firstAvailableBatch->cost_price) * $item->quantity;
+                if($item->product) {
+                    $batch = $item->product->latestBatch ?? $item->product->firstAvailableBatch;
+                    $costPrice = $batch ? $batch->cost_price : 0;
+                    $grossProfit += ($item->unit_price - $costPrice) * $item->quantity;
                 }
             }
+            $totalProfit += ($grossProfit - ($sale->discount_amount ?? 0));
         }
 
         // Inventory
@@ -239,7 +245,7 @@ class ReportController extends Controller
         $sales = $salesQuery->first();
         $refunds = $refundsQuery->first();
 
-        $salesDetails = Sale::with('items.product.firstAvailableBatch')
+        $salesDetails = Sale::with(['items.product.latestBatch', 'items.product.firstAvailableBatch'])
             ->whereBetween('date_sold', [$startDate, $endDate]);
         
         if (!$user->isOwner()) {
@@ -251,8 +257,10 @@ class ReportController extends Controller
         $totalCost = 0;
         foreach($salesList as $sale) {
             foreach($sale->items as $item) {
-                if($item->product && $item->product->firstAvailableBatch) {
-                    $totalCost += ($item->product->firstAvailableBatch->cost_price * $item->quantity);
+                if($item->product) {
+                    $batch = $item->product->latestBatch ?? $item->product->firstAvailableBatch;
+                    $costPrice = $batch ? $batch->cost_price : 0;
+                    $totalCost += ($costPrice * $item->quantity);
                 }
             }
         }

@@ -70,7 +70,7 @@
     @media print {
         @page { 
             margin: 1.5cm; 
-            size: auto;
+            size: portrait;
         }
         body { 
             background: white !important; 
@@ -91,17 +91,17 @@
         }
         .stats-editorial {
             display: flex !important;
-            flex-wrap: wrap;
+            flex-direction: row !important;
             gap: 1rem !important;
             margin-bottom: 2rem !important;
         }
         .editorial-stat-card { 
-            border: 1px solid #eee !important; 
+            border: 1px solid #e1e1e1 !important; 
             margin-bottom: 0 !important; 
             padding: 1.5rem !important;
             flex: 1;
-            min-width: 20%;
             border-radius: 12px !important;
+            background: #fff !important;
         }
         .arch-table-shell { 
             border: none !important; 
@@ -109,23 +109,27 @@
             overflow: visible !important;
         }
         .arch-table {
-            border: 1px solid #eee !important;
+            border: 1px solid #ddd !important;
+            width: 100% !important;
         }
         .arch-table th {
             background-color: #f8f9fa !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            border-bottom: 2px solid #000 !important;
-            color: #000 !important;
+            border-bottom: 2px solid #1a1a1a !important;
+            color: #1a1a1a !important;
+            font-weight: 800 !important;
+            padding: 0.75rem 1rem !important;
         }
         .arch-table td {
             border-bottom: 1px solid #eee !important;
+            padding: 0.75rem 1rem !important;
         }
         .arch-table tr {
             page-break-inside: avoid !important;
         }
         .report-footer { 
-            margin-top: 5rem !important; 
+            margin-top: 4rem !important; 
             page-break-inside: avoid !important; 
         }
         .signature-container {
@@ -143,12 +147,14 @@
 
 @section('content')
 <div class="print-only-header" style="display: none;">
-    <div style="text-align: center; margin-bottom: 3rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 2rem;">
-        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.5rem; letter-spacing: -0.05em;">V’S Fashion</div>
+    <div style="text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 1.5rem;">
+        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.25rem; letter-spacing: -0.05em;">V’S Fashion</div>
         <div style="font-size: 0.8rem; font-weight: 700; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.5rem;">Sales Performance Audit</div>
-        <div style="font-size: 0.85rem; color: #666; font-weight: 500;">
-            San Carlos City, Pangasinan<br>
-            Contact: +63 09158969268 • Official Financial Document
+        <div style="font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 0.5rem;">
+            San Carlos City, Pangasinan • Contact: +63 09158969268
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-editorial); text-transform: uppercase; letter-spacing: 0.05em;">
+            Period: {{ \Carbon\Carbon::parse(request('start_date', now()->subMonth()))->format('F d, Y') }} to {{ \Carbon\Carbon::parse(request('end_date', now()))->format('F d, Y') }}
         </div>
     </div>
 </div>
@@ -213,8 +219,8 @@
                 <th>Sequence ID</th>
                 <th>Curator</th>
                 <th>Branch</th>
-                <th>Total Sum</th>
-                <th></th>
+                <th style="text-align: right;">Total Sum</th>
+                <th class="no-print"></th>
             </tr>
         </thead>
         <tbody>
@@ -224,8 +230,8 @@
                 <td style="font-family: monospace; color: #adb5bd;">#{{ str_pad($sale->id, 8, '0', STR_PAD_LEFT) }}</td>
                 <td>{{ $sale->user->name }}</td>
                 <td>{{ $sale->branch }}</td>
-                <td style="font-weight: 800; color: var(--color-editorial);">₱{{ number_format($sale->total_amount, 2) }}</td>
-                <td style="text-align: right;">
+                <td style="font-weight: 800; color: var(--color-editorial); text-align: right;">₱{{ number_format($sale->total_amount, 2) }}</td>
+                <td style="text-align: right;" class="no-print">
                     <a href="{{ route('sales.show', $sale) }}" class="btn-arch-view">View Identity</a>
                 </td>
             </tr>

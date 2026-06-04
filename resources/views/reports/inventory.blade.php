@@ -53,19 +53,19 @@
     .badge-critical { background: #fdf2f4; color: #802030; }
 
     @media print {
-        @page { margin: 1.5cm; size: auto; }
+        @page { margin: 1.5cm; size: portrait; }
         body { background: white !important; color: black !important; font-size: 10pt; }
         .sidebar, .top-navbar, .filter-ribbon, .btn-print, .report-header, .pos-action-tray, .no-print { display: none !important; }
         .print-only-header { display: block !important; }
         .main-workspace, .workspace-scroll { overflow: visible !important; padding: 0 !important; margin: 0 !important; display: block !important; }
-        .stats-editorial { display: flex !important; flex-wrap: wrap; gap: 1rem !important; margin-bottom: 2rem !important; }
-        .editorial-stat-card { border: 1px solid #eee !important; margin-bottom: 0 !important; padding: 1.5rem !important; flex: 1; border-radius: 12px !important; }
+        .stats-editorial { display: flex !important; flex-direction: row !important; gap: 1.5rem !important; margin-bottom: 2rem !important; }
+        .editorial-stat-card { border: 1px solid #e1e1e1 !important; margin-bottom: 0 !important; padding: 1.5rem !important; flex: 1; border-radius: 12px !important; background: #fff !important; }
         .arch-table-shell { border: none !important; border-radius: 0 !important; overflow: visible !important; }
-        .arch-table { border: 1px solid #eee !important; }
-        .arch-table th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 2px solid #000 !important; color: #000 !important; }
-        .arch-table td { border-bottom: 1px solid #eee !important; }
+        .arch-table { border: 1px solid #ddd !important; width: 100% !important; }
+        .arch-table th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-bottom: 2px solid #1a1a1a !important; color: #1a1a1a !important; font-weight: 800 !important; padding: 0.75rem 1rem !important; }
+        .arch-table td { border-bottom: 1px solid #eee !important; padding: 0.75rem 1rem !important; }
         .arch-table tr { page-break-inside: avoid !important; }
-        .report-footer { margin-top: 5rem !important; page-break-inside: avoid !important; }
+        .report-footer { margin-top: 4rem !important; page-break-inside: avoid !important; }
         img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 </style>
@@ -73,12 +73,14 @@
 
 @section('content')
 <div class="print-only-header" style="display: none;">
-    <div style="text-align: center; margin-bottom: 3rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 2rem;">
-        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.5rem; letter-spacing: -0.05em;">V’S Fashion</div>
+    <div style="text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 1.5rem;">
+        <div style="font-family: 'Bodoni Moda', serif; font-size: 2.5rem; font-weight: 900; color: #802030; margin-bottom: 0.25rem; letter-spacing: -0.05em;">V’S Fashion</div>
         <div style="font-size: 0.8rem; font-weight: 700; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.5rem;">Boutique Management Audit</div>
-        <div style="font-size: 0.85rem; color: #666; font-weight: 500;">
-            San Carlos City, Pangasinan<br>
-            Contact: +63 09158969268 • Official Business Document
+        <div style="font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 0.5rem;">
+            San Carlos City, Pangasinan • Contact: +63 09158969268
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-editorial); text-transform: uppercase; letter-spacing: 0.05em;">
+            As of: {{ date('F d, Y - h:i A') }}
         </div>
     </div>
 </div>
@@ -128,10 +130,10 @@
                 <th>Batch ID</th>
                 <th>Piece Descriptor</th>
                 <th>Supplier</th>
-                <th>Stock Volume</th>
-                <th>Market Price</th>
-                <th>Batch Valuation</th>
-                <th>Received</th>
+                <th style="text-align: right;">Stock Volume</th>
+                <th style="text-align: right;">Market Price</th>
+                <th style="text-align: right;">Batch Valuation</th>
+                <th style="text-align: right;">Received</th>
             </tr>
         </thead>
         <tbody>
@@ -140,10 +142,10 @@
                 <td style="font-family: monospace; color: #adb5bd;">#{{ $batch->batch_number }}</td>
                 <td style="font-weight: 800;">{{ $batch->product->name }}</td>
                 <td>{{ $batch->supplier->name ?? 'N/A' }}</td>
-                <td style="font-weight: 700;">{{ $batch->quantity }} <span style="font-weight: 500; color: #adb5bd; font-size: 0.75rem;">pcs</span></td>
-                <td>₱{{ number_format($batch->selling_price, 2) }}</td>
-                <td style="font-weight: 800; color: var(--color-editorial);">₱{{ number_format($batch->quantity * $batch->selling_price, 2) }}</td>
-                <td style="font-size: 0.75rem; color: #adb5bd;">{{ $batch->date_received->format('M d, Y') }}</td>
+                <td style="font-weight: 700; text-align: right;">{{ $batch->quantity }} <span style="font-weight: 500; color: #adb5bd; font-size: 0.75rem;">pcs</span></td>
+                <td style="text-align: right;">₱{{ number_format($batch->selling_price, 2) }}</td>
+                <td style="font-weight: 800; color: var(--color-editorial); text-align: right;">₱{{ number_format($batch->quantity * $batch->selling_price, 2) }}</td>
+                <td style="font-size: 0.75rem; color: #adb5bd; text-align: right;">{{ $batch->date_received->format('M d, Y') }}</td>
             </tr>
             @empty
             <tr>
@@ -157,20 +159,18 @@
     </table>
 </div>
 
-<div class="report-footer">
+<div class="report-footer" style="margin-top: 4rem;">
     <div style="display: flex; justify-content: flex-end;">
-        <div style="text-align: right; min-width: 250px;">
-            <div style="position: relative; display: inline-block; padding-top: 2rem;">
-                <img src="{{ asset('assets/signatures/owner-signature.png') }}" style="height: 100px; position: absolute; top: -30px; left: 50%; transform: translateX(-50%) rotate(-3deg); z-index: 1; opacity: 0.95; pointer-events: none;">
-                <div style="border-top: 2px solid #1a1a1a; width: 220px; margin: 0 auto;"></div>
-                <strong style="font-size: 1.3rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.01em; margin-top: 0.75rem; display: block;">{{ App\Models\User::getOwnerName() }}</strong>
-                <p style="font-size: 0.7rem; color: #666; font-weight: 700; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em;">Boutique Owner</p>
-            </div>
+        <div style="text-align: center; min-width: 250px;">
+            <img src="{{ asset('assets/signatures/owner-signature.png') }}" style="height: 80px; opacity: 0.9; margin-bottom: 0.5rem;">
+            <div style="border-top: 2px solid #1a1a1a; width: 220px; margin: 0 auto;"></div>
+            <strong style="font-size: 1.3rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.01em; margin-top: 0.75rem; display: block;">{{ App\Models\User::getOwnerName() }}</strong>
+            <p style="font-size: 0.7rem; color: #666; font-weight: 700; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em;">Boutique Owner</p>
         </div>
     </div>
 </div>
 
-<div style="margin-top: 4rem; text-align: center; color: #adb5bd; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;">
+<div style="margin-top: 3rem; text-align: center; color: #adb5bd; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;">
     Generated on {{ date('F d, Y - h:i A') }} • Official V'S Fashion Audit Document
 </div>
 @endsection

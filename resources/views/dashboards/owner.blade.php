@@ -112,34 +112,12 @@
 
     .toggle-pill-item.active { background: white; color: #1a1a1a; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-    .arch-bars-container {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        height: 250px;
-        padding: 0 1rem;
+    .chart-perf-container {
+        position: relative;
+        height: 280px;
+        width: 100%;
+        margin-top: 1rem;
     }
-
-    .arch-bar-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        flex: 1;
-        gap: 1.5rem;
-    }
-
-    .arch-bar-item {
-        width: 65%;
-        border-radius: 8px;
-        min-height: 20px;
-        transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .bar-mauve { background: #c299a0; }
-    .bar-maroon { background: #802030; }
-    .bar-teal { background: #3c5e5e; }
-
-    .arch-bar-label { font-size: 0.65rem; font-weight: 700; color: #adb5bd; text-transform: uppercase; }
 
     /* Seasonal Card */
     .seasonal-archive-card {
@@ -277,23 +255,13 @@
                 <h2 class="chart-perf-title">Sales Trend</h2>
             </div>
             <div class="chart-toggle-pill">
-                <div class="toggle-pill-item active">7 Days</div>
-                <div class="toggle-pill-item">30 Days</div>
+                <div class="toggle-pill-item active" id="btn-trend-7">7 Days</div>
+                <div class="toggle-pill-item" id="btn-trend-30">30 Days</div>
             </div>
         </div>
 
-        <div class="arch-bars-container">
-            @if($salesTrend->isEmpty())
-                <div style="flex: 1; display:flex; align-items:center; justify-content:center; color: #adb5bd; font-weight: 600;">No recent trend data available</div>
-            @else
-                @foreach($salesTrend as $data)
-                    <div class="arch-bar-wrapper">
-                        @php $max = $salesTrend->max('total') ?: 1; $height = ($data->total / $max) * 90; @endphp
-                        <div class="arch-bar-item {{ $loop->last ? 'bar-teal' : ($loop->index % 2 == 0 ? 'bar-mauve' : 'bar-maroon') }}" style="height: {{ max(10, $height) }}%;"></div>
-                        <span class="arch-bar-label">{{ \Carbon\Carbon::parse($data->date)->format('D') }}</span>
-                    </div>
-                @endforeach
-            @endif
+        <div class="chart-perf-container">
+            <canvas id="salesTrendChart"></canvas>
         </div>
     </div>
 
@@ -379,4 +347,115 @@
     </table>
 </div>
 @endif
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const trendData7 = {!! json_encode($salesTrend7) !!};
+        const trendData30 = {!! json_encode($salesTrend30) !!};
+        
+        const ctx = document.getElementById('salesTrendChart').getContext('2d');
+        
+        // Create custom gradients for aesthetic premium look
+        const gradientMaroon = ctx.createLinearGradient(0, 0, 0, 280);
+        gradientMaroon.addColorStop(0, 'rgba(128, 32, 48, 0.3)');
+        gradientMaroon.addColorStop(0.5, 'rgba(128, 32, 48, 0.1)');
+        gradientMaroon.addColorStop(1, 'rgba(128, 32, 48, 0.0)');
+
+        let salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData7.map(d => d.label),
+                datasets: [{
+                    label: 'Sales Revenue',
+                    data: trendData7.map(d => d.total),
+                    borderColor: '#802030', // Editorial Maroon
+                    borderWidth: 3.5,
+                    backgroundColor: gradientMaroon,
+                    fill: true,
+                    tension: 0.4, // Smooth curvy lines
+                    pointBackgroundColor: '#802030',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#802030',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                        titleColor: '#adb5bd',
+                        titleFont: { family: 'Inter', size: 11, weight: '500' },
+                        bodyColor: '#fff',
+                        bodyFont: { family: 'Inter', size: 14, weight: '700' },
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return '₱' + context.raw.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#999',
+                            font: { family: 'Inter', weight: 600, size: 10 }
+                        }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0, 0, 0, 0.03)' },
+                        border: { dash: [5, 5] },
+                        ticks: {
+                            color: '#999',
+                            font: { family: 'Inter', weight: 600, size: 10 },
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Toggling functionality
+        const btn7 = document.getElementById('btn-trend-7');
+        const btn30 = document.getElementById('btn-trend-30');
+
+        btn7.addEventListener('click', function() {
+            btn7.classList.add('active');
+            btn30.classList.remove('active');
+            updateChartData(trendData7);
+        });
+
+        btn30.addEventListener('click', function() {
+            btn30.classList.add('active');
+            btn7.classList.remove('active');
+            updateChartData(trendData30);
+        });
+
+        function updateChartData(data) {
+            salesChart.data.labels = data.map(d => d.label);
+            salesChart.data.datasets[0].data = data.map(d => d.total);
+            salesChart.update();
+        }
+    });
+</script>
 @endsection
