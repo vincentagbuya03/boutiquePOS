@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
@@ -16,11 +18,15 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         if (!in_array($user->role, $roles)) {
             return response()->json(['message' => 'Forbidden: Insufficient permissions'], 403);

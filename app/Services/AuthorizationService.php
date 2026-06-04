@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
 
 class AuthorizationService
 {
@@ -11,13 +13,14 @@ class AuthorizationService
      */
     public static function can(string $action, string $resource, ?User $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        /** @var User|null $resolvedUser */
+        $resolvedUser = $user ?? Auth::user();
 
-        if (!$user) {
+        if (!$resolvedUser) {
             return false;
         }
 
-        return $user->hasPermission($action, $resource);
+        return $resolvedUser->hasPermission($action, $resource);
     }
 
     /**
@@ -25,13 +28,14 @@ class AuthorizationService
      */
     public static function hasRole(string $role, ?User $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        /** @var User|null $resolvedUser */
+        $resolvedUser = $user ?? Auth::user();
 
-        if (!$user) {
+        if (!$resolvedUser) {
             return false;
         }
 
-        return $user->role === $role;
+        return $resolvedUser->role === $role;
     }
 
     /**
@@ -39,13 +43,14 @@ class AuthorizationService
      */
     public static function hasAnyRole(array $roles, ?User $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        /** @var User|null $resolvedUser */
+        $resolvedUser = $user ?? Auth::user();
 
-        if (!$user) {
+        if (!$resolvedUser) {
             return false;
         }
 
-        return in_array($user->role, $roles);
+        return in_array($resolvedUser->role, $roles);
     }
 
     /**
@@ -53,13 +58,14 @@ class AuthorizationService
      */
     public static function hasAllRoles(array $roles, ?User $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        /** @var User|null $resolvedUser */
+        $resolvedUser = $user ?? Auth::user();
 
-        if (!$user) {
+        if (!$resolvedUser) {
             return false;
         }
 
-        return in_array($user->role, $roles);
+        return in_array($resolvedUser->role, $roles);
     }
 
     /**
@@ -124,19 +130,20 @@ class AuthorizationService
      */
     public static function getAccessibleBranches(?User $user = null): array
     {
-        $user = $user ?? auth()->user();
+        /** @var User|null $resolvedUser */
+        $resolvedUser = $user ?? Auth::user();
 
-        if (!$user) {
+        if (!$resolvedUser) {
             return [];
         }
 
-        if ($user->isOwner()) {
+        if ($resolvedUser->isOwner()) {
             // Owners can access all branches - hardcoded for now
             return ['Dagupan', 'San Carlos'];
         }
 
         // Others can only access their own branch
-        return $user->branch ? [$user->branch] : [];
+        return $resolvedUser->branch ? [$resolvedUser->branch] : [];
     }
 
     /**
@@ -144,13 +151,14 @@ class AuthorizationService
      */
     public static function canAccessBranch(string $branch, ?User $user = null): bool
     {
-        $user = $user ?? auth()->user();
+        /** @var User|null $resolvedUser */
+        $resolvedUser = $user ?? Auth::user();
 
-        if (!$user) {
+        if (!$resolvedUser) {
             return false;
         }
 
-        return in_array($branch, self::getAccessibleBranches($user));
+        return in_array($branch, self::getAccessibleBranches($resolvedUser));
     }
 
     /**
@@ -173,9 +181,7 @@ class AuthorizationService
     public static function authorize(string $action, string $resource, ?User $user = null): void
     {
         if (!self::can($action, $resource, $user)) {
-            throw new \Illuminate\Auth\AuthorizationException(
-                "User is not authorized to {$action} {$resource}."
-            );
+            throw new AuthorizationException("User is not authorized to {$action} {$resource}.");
         }
     }
 }
