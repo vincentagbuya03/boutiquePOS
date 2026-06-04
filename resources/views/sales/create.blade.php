@@ -615,6 +615,11 @@
                         <input type="number" id="amountReceived" step="0.01" placeholder="0.00">
                     </div>
                     
+                    <div id="insufficientAmountWarning" style="display: none; background: #fff5f5; border: 1px solid #fcb8b8; color: #c92a2a; padding: 0.75rem 1rem; border-radius: 12px; margin-top: 1rem; font-size: 0.8rem; font-weight: 700; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Amount received is less than amount due.</span>
+                    </div>
+                    
                     <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" style="border-color: rgba(128, 32, 48, 0.1) !important;">
                         <span style="font-weight: 800; color: #adb5bd; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em;">Change Due</span>
                         <strong id="changeDue" style="font-size: 1.35rem; color: #198754;">₱0.00</strong>
@@ -653,6 +658,22 @@
                 Confirm Sale
             </button>
         </form>
+    </div>
+</div>
+
+<!-- WARNING MODAL -->
+<div id="warningModal" class="pos-modal-overlay">
+    <div class="pos-modal" style="max-width: 400px; text-align: center; padding: 2rem;">
+        <div style="width: 60px; height: 60px; background: #fff5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #e03131; font-size: 1.8rem; border: 2px solid #ffe3e3;">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h4 style="font-family: 'Bodoni Moda', serif; font-size: 1.35rem; font-weight: 900; color: #c92a2a; margin-bottom: 0.75rem;">Insufficient Payment</h4>
+        <p style="font-size: 0.85rem; color: #495057; line-height: 1.5; margin-bottom: 1.5rem;">
+            The amount received (₱<span id="warningReceivedAmount">0.00</span>) is less than the total amount due (₱<span id="warningDueAmount">0.00</span>). Please check the cash payment and try again.
+        </p>
+        <button type="button" onclick="closeWarningModal()" class="pos-btn-primary" style="margin-top: 0; padding: 0.85rem; font-size: 0.85rem; background: #e03131; box-shadow: 0 10px 25px rgba(224, 49, 49, 0.2);">
+            Acknowledge
+        </button>
     </div>
 </div>
 
@@ -740,9 +761,21 @@ function calcTotal() {
 }
 
 function calcChange() {
+    const method = document.getElementById('paymentMethod').value;
     const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    const warningEl = document.getElementById('insufficientAmountWarning');
+    const confirmBtn = document.querySelector('#checkoutModal .pos-btn-primary');
+    
     const change = Math.max(0, received - window.finalTotal);
     document.getElementById('changeDue').textContent = '₱' + change.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    
+    if (method === 'cash' && received < window.finalTotal) {
+        warningEl.style.display = 'flex';
+        confirmBtn.style.opacity = '0.7';
+    } else {
+        warningEl.style.display = 'none';
+        confirmBtn.style.opacity = '1';
+    }
 }
 
 function openCheckout() {
@@ -766,9 +799,29 @@ function togglePaymentFields() {
         cashFields.style.display = 'block';
         document.getElementById('amountReceived').value = '';
     }
+    calcChange();
+}
+
+function showWarningModal() {
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    document.getElementById('warningReceivedAmount').textContent = received.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('warningDueAmount').textContent = window.finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('warningModal').style.display = 'flex';
+}
+
+function closeWarningModal() {
+    document.getElementById('warningModal').style.display = 'none';
 }
 
 function finalizeSale() {
+    const method = document.getElementById('paymentMethod').value;
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    
+    if (method === 'cash' && received < window.finalTotal) {
+        showWarningModal();
+        return;
+    }
+
     const items = cart.map(i => ({ product_id: i.id, quantity: i.qty, unit_price: i.price }));
     document.getElementById('saleItems').value = JSON.stringify(items);
     
