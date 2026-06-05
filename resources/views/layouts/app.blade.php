@@ -243,6 +243,67 @@
             color: #1a1a1a;
         }
         .search-input-nav::placeholder { color: #adb5bd; font-weight: 500; }
+        .navbar-search-results {
+            position: absolute;
+            top: calc(100% + 0.7rem);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #f0f1f4;
+            border-radius: 22px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+            padding: 0.65rem;
+            display: none;
+            z-index: 150;
+        }
+        .navbar-search-results.is-visible {
+            display: block;
+        }
+        .navbar-search-empty {
+            padding: 0.95rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        .navbar-search-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            width: 100%;
+            border: none;
+            background: transparent;
+            border-radius: 16px;
+            padding: 0.95rem 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .navbar-search-result:hover,
+        .navbar-search-result.is-active {
+            background: #f8f5f6;
+            transform: translateY(-1px);
+        }
+        .navbar-search-result-title {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .navbar-search-result-meta {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: #8b95a7;
+            letter-spacing: 0.01em;
+        }
+        .navbar-search-result-shortcut {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #9ca3af;
+            white-space: nowrap;
+        }
 
         .navbar-right { display: flex; align-items: center; gap: 3rem; }
 
@@ -641,6 +702,14 @@
 
             .search-input-nav {
                 font-size: 0.78rem;
+            }
+            .navbar-search-results {
+                top: calc(100% + 0.5rem);
+                border-radius: 16px;
+                padding: 0.45rem;
+            }
+            .navbar-search-result {
+                padding: 0.85rem 0.9rem;
             }
 
             .nav-logout-btn,
@@ -1272,9 +1341,15 @@
             <header class="top-navbar">
                 <div class="navbar-left">
                     <div class="page-brand-context">V’S Fashion - San Carlos</div>
-                    <div class="navbar-search">
+                    <div class="navbar-search" id="globalNavbarSearch">
                         <i class="fas fa-search search-icon-nav"></i>
-                        <input type="text" class="search-input-nav" placeholder="Search V'S Fashion...">
+                        <input
+                            type="text"
+                            id="globalSearchInput"
+                            class="search-input-nav"
+                            placeholder="Search pages, tools, and reports..."
+                            autocomplete="off">
+                        <div class="navbar-search-results" id="globalSearchResults" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -1311,7 +1386,223 @@
     @auth
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // System focused on San Carlos Branch
+            const searchWrapper = document.getElementById('globalNavbarSearch');
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchResults = document.getElementById('globalSearchResults');
+
+            if (!searchWrapper || !searchInput || !searchResults) {
+                return;
+            }
+
+            const searchTargets = [
+                {
+                    title: 'Dashboard',
+                    meta: 'Overview and branch insights',
+                    keywords: ['home', 'overview', 'analytics'],
+                    url: "{{ route('dashboard') }}"
+                },
+                @if(auth()->user()->isOwner() || auth()->user()->isAdmin() || auth()->user()->isStaff())
+                {
+                    title: 'Products',
+                    meta: 'Inventory & Supply',
+                    keywords: ['items', 'catalog', 'fashion'],
+                    url: "{{ route('products.index') }}"
+                },
+                {
+                    title: 'Categories',
+                    meta: 'Inventory & Supply',
+                    keywords: ['tags', 'grouping', 'collections'],
+                    url: "{{ route('categories.index') }}"
+                },
+                {
+                    title: 'Stock',
+                    meta: 'Inventory & Supply',
+                    keywords: ['inventory', 'warehouse', 'levels'],
+                    url: "{{ route('inventory.index') }}"
+                },
+                {
+                    title: 'Batches',
+                    meta: 'Inventory & Supply',
+                    keywords: ['deliveries', 'purchase batches'],
+                    url: "{{ route('batches.index') }}"
+                },
+                {
+                    title: 'Suppliers',
+                    meta: 'Inventory & Supply',
+                    keywords: ['vendors', 'partners', 'providers'],
+                    url: "{{ route('suppliers.index') }}"
+                },
+                @endif
+                @if(auth()->user()->isOwner() || auth()->user()->isAdmin() || auth()->user()->isCashier())
+                {
+                    title: 'POS',
+                    meta: 'Operations',
+                    keywords: ['checkout', 'register', 'new sale'],
+                    url: "{{ route('sales.create') }}"
+                },
+                {
+                    title: 'Sales',
+                    meta: 'Operations',
+                    keywords: ['transactions', 'history', 'orders'],
+                    url: "{{ route('sales.index') }}"
+                },
+                {
+                    title: 'Returns',
+                    meta: 'Operations',
+                    keywords: ['refunds', 'exchanges'],
+                    url: "{{ route('returns.index') }}"
+                },
+                @endif
+                @if(auth()->user()->isOwner() || auth()->user()->isAdmin())
+                {
+                    title: 'Personnel',
+                    meta: 'Administration',
+                    keywords: ['users', 'staff', 'employees'],
+                    url: "{{ route('users.index') }}"
+                },
+                {
+                    title: 'Reports',
+                    meta: 'Administration',
+                    keywords: ['analytics', 'sales report', 'inventory report'],
+                    url: "{{ route('reports.index') }}"
+                },
+                @endif
+                {
+                    title: 'Settings',
+                    meta: 'Account and system preferences',
+                    keywords: ['profile', 'preferences', 'configuration'],
+                    url: "{{ route('settings.index') }}"
+                }
+            ];
+
+            let filteredTargets = [];
+            let activeIndex = -1;
+
+            function normalize(value) {
+                return value.trim().toLowerCase();
+            }
+
+            function hideResults() {
+                searchResults.classList.remove('is-visible');
+                searchResults.innerHTML = '';
+                filteredTargets = [];
+                activeIndex = -1;
+            }
+
+            function renderResults(items, query) {
+                if (!query) {
+                    hideResults();
+                    return;
+                }
+
+                if (!items.length) {
+                    searchResults.innerHTML = '<div class="navbar-search-empty">No matching pages found.</div>';
+                    searchResults.classList.add('is-visible');
+                    activeIndex = -1;
+                    return;
+                }
+
+                searchResults.innerHTML = items.map(function(item, index) {
+                    return `
+                        <button type="button" class="navbar-search-result${index === activeIndex ? ' is-active' : ''}" data-search-url="${item.url}" data-search-index="${index}">
+                            <span>
+                                <span class="navbar-search-result-title">${item.title}</span>
+                                <span class="navbar-search-result-meta">${item.meta}</span>
+                            </span>
+                            <span class="navbar-search-result-shortcut">${index === 0 ? 'Enter' : 'Open'}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                searchResults.classList.add('is-visible');
+            }
+
+            function updateResults() {
+                const query = normalize(searchInput.value);
+
+                if (!query) {
+                    hideResults();
+                    return;
+                }
+
+                filteredTargets = searchTargets.filter(function(target) {
+                    const haystack = [
+                        target.title,
+                        target.meta,
+                        ...(target.keywords || [])
+                    ].join(' ').toLowerCase();
+
+                    return haystack.includes(query);
+                });
+
+                activeIndex = filteredTargets.length ? 0 : -1;
+                renderResults(filteredTargets, query);
+            }
+
+            function openActiveResult(index) {
+                const target = filteredTargets[index];
+
+                if (!target) {
+                    return;
+                }
+
+                window.location.href = target.url;
+            }
+
+            searchInput.addEventListener('input', updateResults);
+
+            searchInput.addEventListener('focus', function() {
+                if (searchInput.value.trim()) {
+                    updateResults();
+                }
+            });
+
+            searchInput.addEventListener('keydown', function(event) {
+                if (!filteredTargets.length) {
+                    if (event.key === 'Enter' && searchInput.value.trim()) {
+                        event.preventDefault();
+                    }
+                    return;
+                }
+
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    activeIndex = (activeIndex + 1) % filteredTargets.length;
+                    renderResults(filteredTargets, normalize(searchInput.value));
+                }
+
+                if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    activeIndex = (activeIndex - 1 + filteredTargets.length) % filteredTargets.length;
+                    renderResults(filteredTargets, normalize(searchInput.value));
+                }
+
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    openActiveResult(activeIndex >= 0 ? activeIndex : 0);
+                }
+
+                if (event.key === 'Escape') {
+                    hideResults();
+                    searchInput.blur();
+                }
+            });
+
+            searchResults.addEventListener('click', function(event) {
+                const button = event.target.closest('.navbar-search-result');
+
+                if (!button) {
+                    return;
+                }
+
+                window.location.href = button.dataset.searchUrl;
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!searchWrapper.contains(event.target)) {
+                    hideResults();
+                }
+            });
         });
     </script>
     
