@@ -12,6 +12,8 @@
 - [Visual Table of Contents](VISUAL_TABLE_OF_CONTENTS.md)
 - [Setup Guide](SETUP_GUIDE.md)
 - [System Implementation](SYSTEM_IMPLEMENTATION.md)
+- [GitHub Sharing Guide](GITHUB_SHARING_GUIDE.md)
+- [Cloning Guide](CLONING_GUIDE.md)
 - [RBAC Documentation](RBAC_DOCUMENTATION.md)
 - [User Management Docs](USER_MANAGEMENT_DOCS.md)
 - [ERD](ERD.md)
