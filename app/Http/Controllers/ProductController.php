@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -71,10 +72,11 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_path'] = $path;
+            $validated['image_path'] = $request->file('image')
+                ->store('products', $this->productImagesDisk());
         }
 
+        unset($validated['image']);
         $validated['date_added'] = today();
 
         $product = Product::create($validated);
@@ -145,10 +147,16 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_path'] = $path;
+            $oldImagePath = $product->image_path;
+            $validated['image_path'] = $request->file('image')
+                ->store('products', $this->productImagesDisk());
+
+            if ($oldImagePath) {
+                Storage::disk($this->productImagesDisk())->delete($oldImagePath);
+            }
         }
 
+        unset($validated['image']);
         $product->update($validated);
 
         return redirect()->route('products.show', $product)->with('success', 'Product updated successfully');
@@ -169,5 +177,10 @@ class ProductController extends Controller
 
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product archived successfully');
+    }
+
+    private function productImagesDisk(): string
+    {
+        return config('filesystems.product_images_disk', 'public');
     }
 }

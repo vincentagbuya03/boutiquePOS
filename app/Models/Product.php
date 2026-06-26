@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -24,6 +27,22 @@ class Product extends Model
     protected $casts = [
         'date_added' => 'date',
     ];
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::get(function () {
+            if (! $this->image_path) {
+                return null;
+            }
+
+            if (Str::startsWith($this->image_path, ['http://', 'https://', '/'])) {
+                return $this->image_path;
+            }
+
+            return Storage::disk(config('filesystems.product_images_disk', 'public'))
+                ->url($this->image_path);
+        });
+    }
 
     /**
      * Get the category of this product.

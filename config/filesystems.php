@@ -15,6 +15,8 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'product_images_disk' => env('PRODUCT_IMAGES_DISK', 'public'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
@@ -40,10 +42,8 @@ return [
 
         'public' => [
             'driver' => 'local',
-            // Store public uploads directly under public/storage so they are
-            // immediately accessible by the web server (no symlink needed).
-            'root' => public_path('storage'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'root' => env('PUBLIC_UPLOADS_ROOT', storage_path('app/public')),
+            'url' => env('PUBLIC_UPLOADS_URL', '/storage'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -76,7 +76,7 @@ return [
     */
 
     'links' => [
-        public_path('storage') => storage_path('app/public'),
+        public_path('storage') => env('PUBLIC_UPLOADS_ROOT', storage_path('app/public')),
     ],
 
 ];

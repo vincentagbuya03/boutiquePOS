@@ -98,8 +98,8 @@
 <div class="adjust-grid">
     <div class="piece-identity-card">
         <div class="p-img-frame-lg">
-            @if($product->image_path)
-                <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+            @if($product->image_url)
+                <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
             @else
                 <i class="fas fa-cube" style="font-size: 5rem; color: #f1f1f1;"></i>
             @endif

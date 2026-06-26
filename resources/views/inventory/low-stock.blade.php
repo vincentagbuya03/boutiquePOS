@@ -39,8 +39,8 @@
                         @foreach($lowStockItems as $inventory)
                         <tr style="background: #fff5f5;">
                             <td style="vertical-align: middle;">
-                                @if($inventory->product->image_path)
-                                    <img src="{{ asset('storage/' . $inventory->product->image_path) }}" alt="{{ $inventory->product->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                @if($inventory->product->image_url)
+                                    <img src="{{ $inventory->product->image_url }}" alt="{{ $inventory->product->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                                 @else
                                     <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
                                         <i class="fas fa-image"></i>

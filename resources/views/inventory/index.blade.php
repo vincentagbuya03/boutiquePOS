@@ -92,8 +92,8 @@
             <tr>
                 <td>
                     <div class="p-img-frame">
-                        @if($inventory->product->image_path)
-                            <img src="{{ asset('storage/' . $inventory->product->image_path) }}" alt="{{ $inventory->product->name }}">
+                        @if($inventory->product->image_url)
+                            <img src="{{ $inventory->product->image_url }}" alt="{{ $inventory->product->name }}">
                         @else
                             <i class="fas fa-archive" style="color: #eee;"></i>
                         @endif

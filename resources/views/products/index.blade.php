@@ -110,8 +110,8 @@
     @forelse($products as $product)
     <div class="arch-piece-card">
         <div class="piece-img-box">
-            @if($product->image_path)
-                <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+            @if($product->image_url)
+                <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
             @else
                 <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #f1f1f1; font-size: 3rem;">
                     <i class="fas fa-cube"></i>

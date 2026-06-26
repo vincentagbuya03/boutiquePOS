@@ -234,8 +234,8 @@
                 <h1 class="product-title">{{ $product->name }}</h1>
 
                 <div class="product-image-wrapper">
-                    @if($product->image_path)
-                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+                    @if($product->image_url)
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
                     @else
                         <div class="no-image-placeholder">
                             <i class="fas fa-image"></i>

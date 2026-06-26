@@ -76,14 +76,14 @@
                         <h3 class="section-label">Visual Asset</h3>
                         
                         <div class="image-management-area">
-                            @if($product->image_path)
+                            @if($product->image_url)
                                 <div class="current-image-wrapper">
                                     <span class="badge-overlay">Active View</span>
-                                    <img id="currentImagePreview" src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}" class="product-image-preview">
+                                    <img id="currentImagePreview" src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-image-preview">
                                 </div>
                             @endif
 
-                            <div class="upload-zone {{ $product->image_path ? 'has-current' : '' }}" id="imageDropZone">
+                            <div class="upload-zone {{ $product->image_url ? 'has-current' : '' }}" id="imageDropZone">
                                 <input type="file" id="image" name="image" accept="image/*" style="display: none;">
                                 <div id="imagePreview" style="display: none;">
                                     <img id="imagePreviewImg" src="" alt="Preview" class="product-image-preview new-preview">

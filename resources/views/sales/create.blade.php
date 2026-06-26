@@ -630,10 +630,10 @@
                      data-name="{{ $product->name }}" 
                      data-category="{{ $product->category->name }}"
                      data-size="{{ $product->size }}"
-                     onclick="addToCart({{ json_encode(['id' => $product->id, 'name' => $product->name, 'size' => $product->size, 'price' => $product->firstAvailableBatch->selling_price, 'image' => $product->image_path ? asset('storage/' . $product->image_path) : null]) }})">
+                     onclick="addToCart({{ json_encode(['id' => $product->id, 'name' => $product->name, 'size' => $product->size, 'price' => $product->firstAvailableBatch->selling_price, 'image' => $product->image_url]) }})">
                     <div class="pos-img-box">
-                        @if($product->image_path)
-                            <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+                        @if($product->image_url)
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
                         @else
                             <i class="fas fa-image"></i>
                         @endif
