@@ -240,4 +240,17 @@ class User extends Authenticatable
     {
         return self::where('role', self::ROLE_OWNER)->first()?->name ?? 'Vincent Agbuya';
     }
+
+    /**
+     * Keep legacy `contact` access working while the database stores `contact_number`.
+     */
+    public function getContactAttribute(): ?string
+    {
+        return $this->contact_number;
+    }
+
+    public function setContactAttribute($value): void
+    {
+        $this->attributes['contact_number'] = $value;
+    }
 }

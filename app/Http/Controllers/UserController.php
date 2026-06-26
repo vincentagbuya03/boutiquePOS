@@ -60,12 +60,13 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users'],
-            'contact' => ['required', 'string', 'max:20'],
+            'contact' => ['required_without:contact_number', 'nullable', 'string', 'max:20'],
+            'contact_number' => ['required_without:contact', 'nullable', 'string', 'max:20'],
             'address' => ['required', 'string', 'max:500'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => [
                 'required',
-                Rule::in($this->getAvailableRoles()),
+                Rule::in($this->getAvailableRoleKeys()),
             ],
         ]);
 
@@ -75,6 +76,9 @@ class UserController extends Controller
                 return back()->withErrors(['role' => 'You can only create Staff and Cashier users.']);
             }
         }
+
+        $validated['contact_number'] = $validated['contact_number'] ?? $validated['contact'];
+        unset($validated['contact']);
 
         $validated['password'] = bcrypt($validated['password']);
 
@@ -134,11 +138,12 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'contact' => ['required', 'string', 'max:20'],
+            'contact' => ['required_without:contact_number', 'nullable', 'string', 'max:20'],
+            'contact_number' => ['required_without:contact', 'nullable', 'string', 'max:20'],
             'address' => ['required', 'string', 'max:500'],
             'role' => [
                 'required',
-                Rule::in($this->getAvailableRoles()),
+                Rule::in($this->getAvailableRoleKeys()),
             ],
         ]);
 
@@ -151,6 +156,9 @@ class UserController extends Controller
                 return back()->withErrors(['role' => 'You cannot change your own role.']);
             }
         }
+
+        $validated['contact_number'] = $validated['contact_number'] ?? $validated['contact'];
+        unset($validated['contact']);
 
         $user->update($validated);
 
@@ -221,5 +229,13 @@ class UserController extends Controller
         }
 
         return [];
+    }
+
+    /**
+     * Get the available role keys for validation.
+     */
+    protected function getAvailableRoleKeys(): array
+    {
+        return array_keys($this->getAvailableRoles());
     }
 }
