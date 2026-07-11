@@ -33,4 +33,4 @@ EXPOSE 10000
 
 
 
-CMD sh -c "php artisan migrate --force && php artisan db:seed --class=UserSeeder --force && php artisan storage:link --force && php -S 0.0.0.0:${PORT:-10000} -t public server.php"
+CMD sh -c "php artisan storage:link --force && php -S 0.0.0.0:${PORT:-10000} -t public server.php"
